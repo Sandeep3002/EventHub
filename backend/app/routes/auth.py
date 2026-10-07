@@ -5,7 +5,7 @@ from app.services.auth_service import AuthService
 from app.utils.security import decode_access_token, create_access_token, get_password_hash
 from app.utils.email import send_welcome_email, send_password_reset_email
 from app.database import get_database
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ValidationError
 from datetime import timedelta
 
 from typing import Optional
@@ -47,7 +47,13 @@ async def login(user_in: UserLogin):
 
 @router.post("/login-form", response_model=Token)
 async def login_form(form_data: OAuth2PasswordRequestForm = Depends()):
-    user_in = UserLogin(email=form_data.username, password=form_data.password)
+    try:
+        user_in = UserLogin(email=form_data.username, password=form_data.password)
+    except ValidationError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email format in username field."
+        )
     return await AuthService.authenticate_user(user_in)
 
 @router.get("/me", response_model=UserResponse)

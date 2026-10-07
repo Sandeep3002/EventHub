@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import {
-  CalendarCheck, Mail, Lock, Eye, EyeOff, UserPlus, User,
-  Users, ClipboardCheck, TrendingUp, ChevronDown
+  CalendarCheck, Mail, Lock, Eye, EyeOff, User,
+  Users, ClipboardCheck, TrendingUp, Info
 } from 'lucide-react';
 
 export default function Home() {
@@ -139,7 +139,17 @@ export default function Home() {
       </div>
 
       {/* ─── RIGHT PANEL: Auth Form ─── */}
-      <div className="landing-right">
+      <div className="landing-right relative">
+        {/* About Us Button */}
+        <button
+          onClick={() => navigate('/about')}
+          className="landing-about-btn"
+          title="Learn more about EventHub"
+        >
+          <Info className="w-4 h-4 text-purple-600" />
+          <span>About Us</span>
+        </button>
+
         <div className="landing-form-card">
           <h2 className="text-2xl font-bold text-slate-900 text-center">Welcome to EventHub</h2>
           <p className="text-sm text-slate-500 text-center mb-6">
@@ -217,14 +227,7 @@ export default function Home() {
                 </button>
               </form>
 
-              <div className="landing-or">
-                <span>OR</span>
-              </div>
 
-              <button onClick={() => setActiveTab('register')} className="landing-create-btn">
-                <UserPlus className="w-4 h-4" />
-                Create a New Account
-              </button>
             </>
           )}
 

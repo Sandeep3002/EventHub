@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
-import { Settings as SettingsIcon, User, Bell, Shield, Eye, EyeOff, Save, CheckCircle2 } from 'lucide-react';
+import { authService } from '../services/authService';
+import { Settings as SettingsIcon, User, Bell, Shield, Eye, EyeOff, Save, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [email] = useState(user?.email || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -19,9 +22,41 @@ export default function Settings() {
   const role = user?.role || 'attendee';
   const sidebarRole = role === 'superadmin' ? 'superadmin' : (role === 'admin' || role === 'organizer') ? 'admin' : 'customer';
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleSave = async (e) => {
+    if (e) e.preventDefault();
+    setError('');
+    setSaved(false);
+    setSaving(true);
+
+    try {
+      const updatePayload = {};
+      if (fullName.trim() && fullName.trim() !== user?.full_name) {
+        updatePayload.full_name = fullName.trim();
+      }
+      if (newPassword.trim()) {
+        if (newPassword.length < 4) {
+          throw new Error('New password must be at least 4 characters long.');
+        }
+        updatePayload.password = newPassword.trim();
+      }
+
+      // If there are profile fields to update
+      if (Object.keys(updatePayload).length > 0) {
+        const updatedUser = await authService.updateProfile(updatePayload);
+        if (updateUser && updatedUser) {
+          updateUser(updatedUser);
+        }
+      }
+
+      setSaved(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setTimeout(() => setSaved(false), 3500);
+    } catch (err) {
+      setError(err.message || 'Failed to save settings. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleStyle = (on) => ({
@@ -54,7 +89,17 @@ export default function Settings() {
             padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '8px',
           }}>
             <CheckCircle2 style={{ width: '18px', height: '18px', color: '#10b981' }} />
-            <span style={{ fontSize: '14px', fontWeight: 600, color: '#065f46' }}>Settings saved successfully!</span>
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#065f46' }}>Settings updated and saved successfully!</span>
+          </div>
+        )}
+
+        {error && (
+          <div style={{
+            background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px',
+            padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '8px',
+          }}>
+            <AlertCircle style={{ width: '18px', height: '18px', color: '#ef4444' }} />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#991b1b' }}>{error}</span>
           </div>
         )}
 
@@ -71,7 +116,7 @@ export default function Settings() {
             <div className="form-group">
               <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Full Name</label>
               <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
-                className="form-input" style={{ fontSize: '14px' }} />
+                className="form-input" style={{ fontSize: '14px' }} placeholder="Enter full name" />
             </div>
             <div className="form-group">
               <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Email</label>
@@ -95,8 +140,8 @@ export default function Settings() {
               <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Current Password</label>
               <div style={{ position: 'relative' }}>
                 <input type={showCurrent ? 'text' : 'password'} value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} />
-                <button onClick={() => setShowCurrent(!showCurrent)}
+                  onChange={e => setCurrentPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} placeholder="••••••••" />
+                <button type="button" onClick={() => setShowCurrent(!showCurrent)}
                   style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   {showCurrent ? <EyeOff style={{ width: '16px', height: '16px', color: '#94a3b8' }} /> : <Eye style={{ width: '16px', height: '16px', color: '#94a3b8' }} />}
                 </button>
@@ -106,8 +151,8 @@ export default function Settings() {
               <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>New Password</label>
               <div style={{ position: 'relative' }}>
                 <input type={showNew ? 'text' : 'password'} value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} />
-                <button onClick={() => setShowNew(!showNew)}
+                  onChange={e => setNewPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} placeholder="Enter new password" />
+                <button type="button" onClick={() => setShowNew(!showNew)}
                   style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
                   {showNew ? <EyeOff style={{ width: '16px', height: '16px', color: '#94a3b8' }} /> : <Eye style={{ width: '16px', height: '16px', color: '#94a3b8' }} />}
                 </button>
@@ -131,12 +176,12 @@ export default function Settings() {
               { label: 'Booking Updates', desc: 'Get notified about registration changes', value: bookingNotifs, setter: setBookingNotifs },
               { label: 'Marketing Emails', desc: 'Receive promotional offers and event recommendations', value: marketingNotifs, setter: setMarketingNotifs },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fafbfc', borderRadius: '10px' }}>
+              <div key={i} style={{ display: 'flex', justify: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fafbfc', borderRadius: '10px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>{item.label}</p>
                   <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>{item.desc}</p>
                 </div>
-                <button onClick={() => item.setter(!item.value)} style={toggleStyle(item.value)}>
+                <button type="button" onClick={() => item.setter(!item.value)} style={toggleStyle(item.value)}>
                   <div style={toggleDot(item.value)} />
                 </button>
               </div>
@@ -146,12 +191,34 @@ export default function Settings() {
 
         {/* Save Button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={handleSave} className="btn-primary" style={{
-            padding: '12px 28px', fontSize: '14px', fontWeight: 600,
-            display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px',
-          }}>
-            <Save style={{ width: '16px', height: '16px' }} />
-            Save Changes
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-primary"
+            style={{
+              padding: '12px 28px', fontSize: '14px', fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '10px',
+              backgroundColor: saved ? '#10B981' : undefined,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {saving ? (
+              <>
+                <Loader2 style={{ width: '16px', height: '16px' }} className="animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : saved ? (
+              <>
+                <CheckCircle2 style={{ width: '16px', height: '16px' }} />
+                <span>Saved ✓</span>
+              </>
+            ) : (
+              <>
+                <Save style={{ width: '16px', height: '16px' }} />
+                <span>Save Changes</span>
+              </>
+            )}
           </button>
         </div>
       </main>

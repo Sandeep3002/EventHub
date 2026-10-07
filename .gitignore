@@ -36,5 +36,8 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# Credentials
+eventhub.txt
+
 # Build
 build/

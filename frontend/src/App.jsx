@@ -64,7 +64,7 @@ function ProtectedRoute({ children, requiredRole }) {
 function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
-  const isStandalonePage = isLandingPage || location.pathname === '/reset-password';
+  const isStandalonePage = isLandingPage || location.pathname === '/reset-password' || location.pathname === '/about';
 
   return (
     <div className="min-h-screen relative flex flex-col bg-[#F8FAFC]">

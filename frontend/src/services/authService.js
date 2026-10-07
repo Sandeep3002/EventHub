@@ -35,6 +35,15 @@ export const authService = {
     }
   },
 
+  async updateProfile(updateData) {
+    const data = await request('/users/me', {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    });
+    localStorage.setItem('eventhub_user', JSON.stringify(data));
+    return data;
+  },
+
   logout() {
     localStorage.removeItem('eventhub_token');
     localStorage.removeItem('eventhub_user');

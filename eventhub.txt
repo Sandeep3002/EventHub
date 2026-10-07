@@ -4,7 +4,7 @@ cd backend
 
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-http://127.0.0.1:8000
+http://127.0.0.1:8000/docs 
 
 frontend:-
 
@@ -17,3 +17,27 @@ http://localhost:5173/
 
 "email": "superadmin@eventhub.com"
 "password": "demo1234"
+
+"email": "gvmdurgasandeep@gmail.com.com"
+"password":
+
+"email": "pranav@gmail.com"
+"password":
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mongodb://localhost:27017 and check:
+
+Database: eventhub_db
+Collection: users
