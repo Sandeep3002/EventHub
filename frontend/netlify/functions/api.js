@@ -1,6 +1,8 @@
 // Cloudflare Pages Native API Backend for EventHub
 // Replaces Python FastAPI with 100% Edge-native serverless execution
 
+const DEFAULT_JWT_SECRET = 'super-secret-key-change-in-production-eventhub-key';
+
 // In-memory data store for Edge Worker lifetime
 const memoryStore = {
   users: [
@@ -311,7 +313,7 @@ async function getAuthUser(request, jwtSecret) {
 // Main Cloudflare Handler
 export async function onRequest(context) {
   const { request } = context;
-  const jwtSecret = (context.env && context.env.JWT_SECRET) || JWT_SECRET;
+  const jwtSecret = (context.env && context.env.JWT_SECRET) || DEFAULT_JWT_SECRET;
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/api\/v1/, '').replace(/^\/api/, '');
   const method = request.method.toUpperCase();
