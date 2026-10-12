@@ -26,3 +26,7 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 Docs available at: `http://localhost:8000/docs`
+
+Set a unique `SECRET_KEY` in the environment before starting the backend. For
+email delivery, configure `SMTP_USER` and `SMTP_PASSWORD`; never commit these
+values to the repository.

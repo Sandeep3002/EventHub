@@ -1,5 +1,17 @@
 # React + Vite
 
+## Cloudflare Worker API
+
+Configure a secret named `JWT_SECRET` with at least 32 characters before
+deploying the Worker:
+
+```bash
+npx wrangler secret put JWT_SECRET
+```
+
+The API returns an error if this secret is missing or too short. Do not add
+secret values to `wrangler.json`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

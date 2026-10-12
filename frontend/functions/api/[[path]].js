@@ -1,8 +1,6 @@
 // Cloudflare Pages Native API Backend for EventHub
 // Replaces Python FastAPI with 100% Edge-native serverless execution
 
-const JWT_SECRET = 'super-secret-key-change-in-production-eventhub-key';
-
 // In-memory data store for Edge Worker lifetime
 const memoryStore = {
   users: [
@@ -12,37 +10,37 @@ const memoryStore = {
       password_hash: 'demo1234', // Checked via verifyPassword
       full_name: 'Super Admin',
       role: 'superadmin',
-      phone: '+91 9876543210',
+      phone: '',
       is_active: true,
       created_at: new Date('2026-01-01').toISOString(),
     },
     {
       id: 'usr_sandeep',
-      email: 'gvmdurgasandeep@gmail.com',
+      email: 'admin@eventhub.com',
       password_hash: 'demo1234',
-      full_name: 'Durga Sandeep',
+      full_name: 'Demo Admin',
       role: 'admin',
-      phone: '+91 9123456789',
+      phone: '',
       is_active: true,
       created_at: new Date('2026-01-02').toISOString(),
     },
     {
       id: 'usr_pranav',
-      email: 'pranav@gmail.com',
+      email: 'organizer@example.com',
       password_hash: 'demo1234',
-      full_name: 'Pranav',
+      full_name: 'Demo Organizer',
       role: 'organizer',
-      phone: '+91 9876501234',
+      phone: '',
       is_active: true,
       created_at: new Date('2026-01-03').toISOString(),
     },
     {
       id: 'usr_attendee',
-      email: 'attendee@eventhub.com',
+      email: 'john@example.com',
       password_hash: 'demo1234',
       full_name: 'John Doe',
       role: 'attendee',
-      phone: '+91 9988776655',
+      phone: '',
       is_active: true,
       created_at: new Date('2026-01-04').toISOString(),
     },
@@ -141,8 +139,8 @@ const memoryStore = {
       event_title: 'Global Tech & AI Summit 2026',
       user_id: 'usr_attendee',
       attendee_name: 'John Doe',
-      attendee_email: 'attendee@eventhub.com',
-      attendee_phone: '+91 9988776655',
+      attendee_email: 'john@example.com',
+      attendee_phone: '',
       ticket_type: 'General Admission',
       quantity: 1,
       total_amount: 1499,
@@ -224,7 +222,7 @@ function base64UrlDecode(str) {
   return decodeURIComponent(escape(atob(base64)));
 }
 
-async function createJwt(payload) {
+async function createJwt(payload, jwtSecret) {
   const header = { alg: 'HS256', typ: 'JWT' };
   const exp = Math.floor(Date.now() / 1000) + (60 * 60 * 24); // 24 hours
   const fullPayload = { ...payload, exp };
@@ -236,7 +234,7 @@ async function createJwt(payload) {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(JWT_SECRET),
+    encoder.encode(jwtSecret),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign']
@@ -250,7 +248,7 @@ async function createJwt(payload) {
   return `${unsignedToken}.${encodedSignature}`;
 }
 
-async function verifyJwt(token) {
+async function verifyJwt(token, jwtSecret) {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return null;
@@ -260,7 +258,7 @@ async function verifyJwt(token) {
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       'raw',
-      encoder.encode(JWT_SECRET),
+      encoder.encode(jwtSecret),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['verify']
@@ -300,11 +298,11 @@ function errorResponse(detail, status = 400) {
   return jsonResponse({ detail }, status);
 }
 
-async function getAuthUser(request) {
+async function getAuthUser(request, jwtSecret) {
   const authHeader = request.headers.get('Authorization') || '';
   if (!authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.substring(7);
-  const payload = await verifyJwt(token);
+  const payload = await verifyJwt(token, jwtSecret);
   if (!payload || !payload.sub) return null;
   const user = memoryStore.users.find(u => u.id === payload.sub);
   return user || null;
@@ -313,6 +311,10 @@ async function getAuthUser(request) {
 // Main Cloudflare Handler
 export async function onRequest(context) {
   const { request } = context;
+  const jwtSecret = context.env.JWT_SECRET;
+  if (typeof jwtSecret !== 'string' || jwtSecret.length < 32) {
+    return errorResponse('Server authentication is not configured.', 500);
+  }
   const url = new URL(request.url);
   const path = url.pathname.replace(/^\/api\/v1/, '').replace(/^\/api/, '');
   const method = request.method.toUpperCase();
@@ -339,7 +341,7 @@ export async function onRequest(context) {
       return errorResponse('Incorrect email or password.', 401);
     }
 
-    const token = await createJwt({ sub: user.id, role: user.role });
+    const token = await createJwt({ sub: user.id, role: user.role }, jwtSecret);
     const { password_hash, ...safeUser } = user;
     return jsonResponse({
       access_token: token,
@@ -373,7 +375,7 @@ export async function onRequest(context) {
     };
 
     memoryStore.users.push(newUser);
-    const token = await createJwt({ sub: newUser.id, role: newUser.role });
+    const token = await createJwt({ sub: newUser.id, role: newUser.role }, jwtSecret);
     const { password_hash, ...safeUser } = newUser;
 
     return jsonResponse({
@@ -384,7 +386,7 @@ export async function onRequest(context) {
   }
 
   if (path === '/auth/me' && method === 'GET') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const { password_hash, ...safeUser } = user;
     return jsonResponse(safeUser);
@@ -400,14 +402,14 @@ export async function onRequest(context) {
 
   // --- USERS ROUTES ---
   if (path === '/users' && method === 'GET') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const safeUsers = memoryStore.users.map(({ password_hash, ...u }) => u);
     return jsonResponse(safeUsers);
   }
 
   if (path === '/users/me' && method === 'PUT') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const body = await request.json().catch(() => ({}));
 
@@ -487,7 +489,7 @@ export async function onRequest(context) {
   }
 
   if (path === '/events' && method === 'POST') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const body = await request.json().catch(() => ({}));
 
@@ -530,7 +532,7 @@ export async function onRequest(context) {
   }
 
   if (path.startsWith('/events/') && method === 'PUT') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const eventId = path.split('/')[2];
     const event = memoryStore.events.find(e => e.id === eventId);
@@ -542,7 +544,7 @@ export async function onRequest(context) {
   }
 
   if (path.startsWith('/events/') && method === 'DELETE') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const eventId = path.split('/')[2];
     const index = memoryStore.events.findIndex(e => e.id === eventId);
@@ -554,7 +556,7 @@ export async function onRequest(context) {
 
   // --- REGISTRATIONS / BOOKINGS ROUTES ---
   if (path === '/registrations' && method === 'POST') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const body = await request.json().catch(() => ({}));
 
@@ -604,20 +606,20 @@ export async function onRequest(context) {
   }
 
   if (path === '/registrations/my-registrations' && method === 'GET') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const myRegs = memoryStore.registrations.filter(r => r.user_id === user.id);
     return jsonResponse(myRegs);
   }
 
   if (path === '/registrations/all' && method === 'GET') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     return jsonResponse(memoryStore.registrations);
   }
 
   if (path.startsWith('/registrations/') && method === 'DELETE') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const regId = path.split('/')[2];
     const index = memoryStore.registrations.findIndex(r => r.id === regId);
@@ -650,7 +652,7 @@ export async function onRequest(context) {
   }
 
   if (path === '/payments' && method === 'POST') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     const body = await request.json().catch(() => ({}));
     const newPay = {
@@ -670,7 +672,7 @@ export async function onRequest(context) {
   }
 
   if (path === '/payments/my-payments' && method === 'GET') {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser(request, jwtSecret);
     if (!user) return errorResponse('Not authenticated', 401);
     return jsonResponse(memoryStore.payments.filter(p => p.user_id === user.id));
   }
