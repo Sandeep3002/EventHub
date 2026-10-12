@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../services/authService';
 import {
-  CalendarCheck, Lock, Eye, EyeOff, CheckCircle,
-  Users, ClipboardCheck, TrendingUp,
+  Lock, Eye, EyeOff, CheckCircle
 } from 'lucide-react';
 
 export default function ResetPassword() {
@@ -51,48 +50,11 @@ export default function ResetPassword() {
 
       {/* ─── LEFT PANEL: Branding (same as Home) ─── */}
       <div className="landing-left">
-        <div className="landing-left-overlay" />
         <img
-          src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"
-          alt="" className="landing-left-bg"
+          src="/images/eventhub-hero.jpg"
+          alt="EventHub - Plan • Organize • Experience"
+          className="landing-left-bg"
         />
-
-        <div className="landing-left-content">
-          <div className="landing-logo">
-            <div className="landing-logo-icon">
-              <CalendarCheck className="w-8 h-8" />
-            </div>
-            <h1 className="landing-logo-text">EventHub</h1>
-            <p className="landing-logo-tagline">Plan &bull; Organize &bull; Experience</p>
-            <div className="landing-divider" />
-          </div>
-
-          <p className="landing-desc">
-            A complete event management platform<br />
-            for organizers and attendees.
-          </p>
-
-          <div className="landing-features">
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <Users className="w-6 h-6" />
-              </div>
-              <span>Create<br/>Events</span>
-            </div>
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <ClipboardCheck className="w-6 h-6" />
-              </div>
-              <span>Manage<br/>Registrations</span>
-            </div>
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <span>Grow<br/>Your Community</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ─── RIGHT PANEL: Reset Password Form ─── */}

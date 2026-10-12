@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import {
-  CalendarCheck, Mail, Lock, Eye, EyeOff, User,
-  Users, ClipboardCheck, TrendingUp, Info
+  Mail, Lock, Eye, EyeOff, User, Info
 } from 'lucide-react';
 
 export default function Home() {
@@ -91,51 +90,11 @@ export default function Home() {
 
       {/* ─── LEFT PANEL: Branding ─── */}
       <div className="landing-left">
-        <div className="landing-left-overlay" />
         <img
-          src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"
-          alt="" className="landing-left-bg"
+          src="/images/eventhub-hero.jpg"
+          alt="EventHub - Plan • Organize • Experience"
+          className="landing-left-bg"
         />
-
-        <div className="landing-left-content">
-          {/* Logo */}
-          <div className="landing-logo">
-            <div className="landing-logo-icon">
-              <CalendarCheck className="w-8 h-8" />
-            </div>
-            <h1 className="landing-logo-text">EventHub</h1>
-            <p className="landing-logo-tagline">Plan &bull; Organize &bull; Experience</p>
-            <div className="landing-divider" />
-          </div>
-
-          {/* Description */}
-          <p className="landing-desc">
-            A complete event management platform<br />
-            for organizers and attendees.
-          </p>
-
-          {/* Feature Icons */}
-          <div className="landing-features">
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <Users className="w-6 h-6" />
-              </div>
-              <span>Create<br/>Events</span>
-            </div>
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <ClipboardCheck className="w-6 h-6" />
-              </div>
-              <span>Manage<br/>Registrations</span>
-            </div>
-            <div className="landing-feature-item">
-              <div className="landing-feature-icon">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <span>Grow<br/>Your Community</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* ─── RIGHT PANEL: Auth Form ─── */}
