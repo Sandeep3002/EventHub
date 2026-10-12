@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import {
-  Mail, Lock, Eye, EyeOff, User, Info
+  Mail, Lock, Eye, EyeOff, User, Users, Info
 } from 'lucide-react';
 
 export default function Home() {
