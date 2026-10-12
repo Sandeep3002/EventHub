@@ -7,40 +7,40 @@ const memoryStore = {
     {
       id: 'usr_superadmin',
       email: 'superadmin@eventhub.com',
-      password_hash: 'demo1234', // Checked via verifyPassword
+      password_hash: 'demo1234',
       full_name: 'Super Admin',
       role: 'superadmin',
-      phone: '',
+      phone: '+91 9876543210',
       is_active: true,
       created_at: new Date('2026-01-01').toISOString(),
     },
     {
       id: 'usr_sandeep',
-      email: 'admin@eventhub.com',
+      email: 'gvmdurgasandeep@gmail.com',
       password_hash: 'demo1234',
-      full_name: 'Demo Admin',
+      full_name: 'Durga Sandeep',
       role: 'admin',
-      phone: '',
+      phone: '+91 9123456789',
       is_active: true,
       created_at: new Date('2026-01-02').toISOString(),
     },
     {
       id: 'usr_pranav',
-      email: 'organizer@example.com',
+      email: 'pranav@gmail.com',
       password_hash: 'demo1234',
-      full_name: 'Demo Organizer',
+      full_name: 'Pranav',
       role: 'organizer',
-      phone: '',
+      phone: '+91 9876501234',
       is_active: true,
       created_at: new Date('2026-01-03').toISOString(),
     },
     {
       id: 'usr_attendee',
-      email: 'john@example.com',
+      email: 'attendee@eventhub.com',
       password_hash: 'demo1234',
       full_name: 'John Doe',
       role: 'attendee',
-      phone: '',
+      phone: '+91 9988776655',
       is_active: true,
       created_at: new Date('2026-01-04').toISOString(),
     },
@@ -738,3 +738,13 @@ export async function onRequest(context) {
   // 404 for unknown API routes
   return errorResponse(`API endpoint not found: ${method} ${path}`, 404);
 }
+
+
+// Netlify Functions v2 Handler
+export default async function handler(req, context) {
+  return onRequest({ request: req, env: process.env || {} });
+}
+
+export const config = {
+  path: ['/api/*', '/api/v1/*'],
+};
