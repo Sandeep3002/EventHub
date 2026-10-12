@@ -9,6 +9,7 @@ export async function request(endpoint, options = {}, fallback = null) {
   try {
     const headers = {
       'Content-Type': 'application/json',
+      'Bypass-Tunnel-Reminder': 'true',
       ...getAuthHeader(),
       ...options.headers
     };
