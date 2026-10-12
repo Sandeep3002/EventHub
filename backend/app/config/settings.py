@@ -12,6 +12,7 @@ class Settings(BaseSettings):
 
     MONGODB_URL: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
     DATABASE_NAME: str = os.getenv("DATABASE_NAME", "eventhub_db")
+    CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "")
 
     RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "rzp_test_REPLACE_ME")
     RAZORPAY_KEY_SECRET: str = os.getenv("RAZORPAY_KEY_SECRET", "REPLACE_ME")
