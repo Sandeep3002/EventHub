@@ -1,3 +1,0 @@
-"""
-EventHub Backend Application Package
-"""
