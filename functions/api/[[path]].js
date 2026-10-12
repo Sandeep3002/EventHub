@@ -209,19 +209,37 @@ async function verifyPassword(plainText, storedHash) {
   return hashed === storedHash;
 }
 
-function base64UrlEncode(str) {
-  return btoa(unescape(encodeURIComponent(str)))
+function bufferToBase64Url(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary)
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 }
 
-function base64UrlDecode(str) {
-  let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+function base64UrlToBuffer(base64url) {
+  let base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
   while (base64.length % 4) {
     base64 += '=';
   }
-  return decodeURIComponent(escape(atob(base64)));
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function stringToBase64Url(str) {
+  return bufferToBase64Url(new TextEncoder().encode(str));
+}
+
+function base64UrlToString(base64url) {
+  return new TextDecoder().decode(base64UrlToBuffer(base64url));
 }
 
 async function createJwt(payload, jwtSecret) {
@@ -229,8 +247,8 @@ async function createJwt(payload, jwtSecret) {
   const exp = Math.floor(Date.now() / 1000) + (60 * 60 * 24); // 24 hours
   const fullPayload = { ...payload, exp };
 
-  const encodedHeader = base64UrlEncode(JSON.stringify(header));
-  const encodedPayload = base64UrlEncode(JSON.stringify(fullPayload));
+  const encodedHeader = stringToBase64Url(JSON.stringify(header));
+  const encodedPayload = stringToBase64Url(JSON.stringify(fullPayload));
   const unsignedToken = `${encodedHeader}.${encodedPayload}`;
 
   const encoder = new TextEncoder();
@@ -243,9 +261,7 @@ async function createJwt(payload, jwtSecret) {
   );
 
   const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(unsignedToken));
-  const encodedSignature = base64UrlEncode(
-    String.fromCharCode(...new Uint8Array(signature))
-  );
+  const encodedSignature = bufferToBase64Url(signature);
 
   return `${unsignedToken}.${encodedSignature}`;
 }
@@ -266,16 +282,11 @@ async function verifyJwt(token, jwtSecret) {
       ['verify']
     );
 
-    const binarySig = atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/'));
-    const sigBytes = new Uint8Array(binarySig.length);
-    for (let i = 0; i < binarySig.length; i++) {
-      sigBytes[i] = binarySig.charCodeAt(i);
-    }
-
+    const sigBytes = base64UrlToBuffer(signatureB64);
     const isValid = await crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(unsignedToken));
     if (!isValid) return null;
 
-    const payload = JSON.parse(base64UrlDecode(payloadB64));
+    const payload = JSON.parse(base64UrlToString(payloadB64));
     if (payload.exp && Date.now() / 1000 > payload.exp) return null;
 
     return payload;
@@ -301,13 +312,27 @@ function errorResponse(detail, status = 400) {
 }
 
 async function getAuthUser(request, jwtSecret) {
-  const authHeader = request.headers.get('Authorization') || '';
+  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
   if (!authHeader.startsWith('Bearer ')) return null;
   const token = authHeader.substring(7);
   const payload = await verifyJwt(token, jwtSecret);
   if (!payload || !payload.sub) return null;
-  const user = memoryStore.users.find(u => u.id === payload.sub);
-  return user || null;
+
+  let user = memoryStore.users.find(u => u.id === payload.sub || (payload.email && u.email.toLowerCase() === payload.email.toLowerCase()));
+  if (!user) {
+    user = {
+      id: payload.sub,
+      email: payload.email || 'user@example.com',
+      full_name: payload.full_name || 'Event Attendee',
+      role: payload.role || 'attendee',
+      phone: payload.phone || '',
+      password_hash: 'demo1234',
+      is_active: true,
+      created_at: new Date().toISOString(),
+    };
+    memoryStore.users.push(user);
+  }
+  return user;
 }
 
 // Main Cloudflare Handler
@@ -340,7 +365,7 @@ export async function onRequest(context) {
       return errorResponse('Incorrect email or password.', 401);
     }
 
-    const token = await createJwt({ sub: user.id, role: user.role }, jwtSecret);
+    const token = await createJwt({ sub: user.id, role: user.role, email: user.email, full_name: user.full_name }, jwtSecret);
     const { password_hash, ...safeUser } = user;
     return jsonResponse({
       access_token: token,
@@ -374,7 +399,7 @@ export async function onRequest(context) {
     };
 
     memoryStore.users.push(newUser);
-    const token = await createJwt({ sub: newUser.id, role: newUser.role }, jwtSecret);
+    const token = await createJwt({ sub: newUser.id, role: newUser.role, email: newUser.email, full_name: newUser.full_name }, jwtSecret);
     const { password_hash, ...safeUser } = newUser;
 
     return jsonResponse({
