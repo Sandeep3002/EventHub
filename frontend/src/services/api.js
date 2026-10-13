@@ -41,8 +41,15 @@ export async function request(endpoint, options = {}, fallback = null) {
     };
     const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
     if (!response.ok) {
-      const errBody = await response.json().catch(() => ({ detail: 'Request failed' }));
-      throw new Error(errBody.detail || `Error ${response.status}`);
+      let detail = 'Request failed';
+      try {
+        const errBody = await response.json();
+        detail = errBody.detail || errBody.message || errBody.error || `Error ${response.status}`;
+      } catch {
+        const text = await response.text().catch(() => '');
+        detail = text || `Error ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(detail);
     }
     return await response.json();
   } catch (err) {
