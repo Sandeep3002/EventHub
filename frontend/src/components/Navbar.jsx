@@ -13,10 +13,12 @@ export default function Navbar() {
   const [expandedNotif, setExpandedNotif] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const notifRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(e) {
       if (notifRef.current && !notifRef.current.contains(e.target)) setNotifOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setDropdownOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -90,121 +92,127 @@ export default function Navbar() {
           />
         </form>
 
-        {/* Dashboard: notification bell */}
-        {isDashboardPage && (
-          <div className="relative" ref={notifRef}>
-            <button
-              className="relative p-2 rounded-full hover:bg-slate-100 transition"
-              onClick={() => setNotifOpen(!notifOpen)}
-            >
-              <Bell className="w-5 h-5 text-slate-600" />
-              {notifications.some(n => !n.read) && (
-                <span style={{
-                  position: 'absolute', top: '6px', right: '6px',
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: '#ef4444', border: '2px solid white',
-                }} />
-              )}
-            </button>
-
-            {notifOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900">Notifications</h3>
-                  <button
-                    onClick={() => { notificationService.markAllRead().catch(() => {}); setNotifications(prev => prev.map(n => ({ ...n, read: true }))); }}
-                    className="text-xs font-semibold text-purple-600 hover:underline"
-                  >
-                    Mark all read
-                  </button>
-                </div>
-
-                <div className="max-h-72 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-xs text-slate-400">No notifications</div>
-                  ) : (
-                    notifications.map(n => {
-                      const isExpanded = expandedNotif === n.id;
-                      return (
-                        <div
-                          key={n.id}
-                          className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition cursor-pointer ${!n.read ? 'bg-purple-50/50' : ''}`}
-                          onClick={() => {
-                            setExpandedNotif(isExpanded ? null : n.id);
-                            setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
-                          }}
-                        >
-                          <div className="flex gap-3">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                              n.type === 'booking' ? 'bg-green-100 text-green-600' :
-                              n.type === 'event' ? 'bg-blue-100 text-blue-600' :
-                              'bg-slate-100 text-slate-500'
-                            }`}>
-                              {n.type === 'booking' ? <CheckCircle className="w-4 h-4" /> :
-                               n.type === 'event' ? <Calendar className="w-4 h-4" /> :
-                               <Info className="w-4 h-4" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <p className={`text-xs font-semibold ${!n.read ? 'text-slate-900' : 'text-slate-600'}`}>{n.title}</p>
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.filter(x => x.id !== n.id)); }}
-                                  className="text-slate-300 hover:text-slate-500 shrink-0 ml-1"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                              <p className={`text-[11px] text-slate-500 ${isExpanded ? '' : 'truncate'}`}>{n.message}</p>
-                              <p className="text-[10px] text-slate-400 mt-0.5">{n.time}</p>
-                            </div>
-                          </div>
-                          {isExpanded && (
-                            <div className="mt-2 ml-11 flex gap-2">
-                              {n.link && (
-                                <button onClick={(e) => { e.stopPropagation(); navigate(n.link); setNotifOpen(false); }} className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full hover:bg-purple-100 transition">
-                                  {n.type === 'booking' ? 'View Ticket' : n.type === 'event' ? 'View Event' : 'View'}
-                                </button>
-                              )}
-                              <button onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.filter(x => x.id !== n.id)); }}
-                                className="text-[10px] font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-full hover:bg-red-100 transition">Dismiss</button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                <div className="px-4 py-2.5 border-t border-slate-100 text-center">
-                  <button className="text-xs font-semibold text-purple-600 hover:underline">View All Notifications</button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Right Actions - hidden on dashboard pages */}
-        {!isDashboardPage && (
+        {/* Right Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          {/* Notification bell on dashboard */}
+          {isDashboardPage && (
+            <div className="relative" ref={notifRef}>
+              <button
+                className="relative p-2 rounded-full hover:bg-slate-100 transition"
+                onClick={() => setNotifOpen(!notifOpen)}
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5 text-slate-600" />
+                {notifications.some(n => !n.read) && (
+                  <span style={{
+                    position: 'absolute', top: '6px', right: '6px',
+                    width: '8px', height: '8px', borderRadius: '50%',
+                    background: '#ef4444', border: '2px solid white',
+                  }} />
+                )}
+              </button>
+
+              {notifOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                    <h3 className="text-sm font-bold text-slate-900">Notifications</h3>
+                    <button
+                      onClick={() => { notificationService.markAllRead().catch(() => {}); setNotifications(prev => prev.map(n => ({ ...n, read: true }))); }}
+                      className="text-xs font-semibold text-purple-600 hover:underline"
+                    >
+                      Mark all read
+                    </button>
+                  </div>
+
+                  <div className="max-h-72 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-xs text-slate-400">No notifications</div>
+                    ) : (
+                      notifications.map(n => {
+                        const isExpanded = expandedNotif === n.id;
+                        return (
+                          <div
+                            key={n.id}
+                            className={`px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition cursor-pointer ${!n.read ? 'bg-purple-50/50' : ''}`}
+                            onClick={() => {
+                              setExpandedNotif(isExpanded ? null : n.id);
+                              setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
+                            }}
+                          >
+                            <div className="flex gap-3">
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                n.type === 'booking' ? 'bg-green-100 text-green-600' :
+                                n.type === 'event' ? 'bg-blue-100 text-blue-600' :
+                                'bg-slate-100 text-slate-500'
+                              }`}>
+                                {n.type === 'booking' ? <CheckCircle className="w-4 h-4" /> :
+                                 n.type === 'event' ? <Calendar className="w-4 h-4" /> :
+                                 <Info className="w-4 h-4" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className={`text-xs font-semibold ${!n.read ? 'text-slate-900' : 'text-slate-600'}`}>{n.title}</p>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.filter(x => x.id !== n.id)); }}
+                                    className="text-slate-300 hover:text-slate-500 shrink-0 ml-1"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                                <p className={`text-[11px] text-slate-500 ${isExpanded ? '' : 'truncate'}`}>{n.message}</p>
+                                <p className="text-[10px] text-slate-400 mt-0.5">{n.time}</p>
+                              </div>
+                            </div>
+                            {isExpanded && (
+                              <div className="mt-2 ml-11 flex gap-2">
+                                {n.link && (
+                                  <button onClick={(e) => { e.stopPropagation(); navigate(n.link); setNotifOpen(false); }} className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full hover:bg-purple-100 transition">
+                                    {n.type === 'booking' ? 'View Ticket' : n.type === 'event' ? 'View Event' : 'View'}
+                                  </button>
+                                )}
+                                <button onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.filter(x => x.id !== n.id)); }}
+                                  className="text-[10px] font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-full hover:bg-red-100 transition">Dismiss</button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <div className="px-4 py-2.5 border-t border-slate-100 text-center">
+                    <button className="text-xs font-semibold text-purple-600 hover:underline">View All Notifications</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* User Profile Dropdown Pill */}
           {user ? (
-            <div className="relative">
+            <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="navbar-user-btn"
+                className={isDashboardPage ? 'navbar-user-btn-light' : 'navbar-user-btn'}
+                aria-label="User menu"
               >
-                <div className="w-8 h-8 rounded-full bg-white/20 text-white font-bold text-sm flex items-center justify-center">
+                <div className={`w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center shrink-0 shadow-sm ${
+                  isDashboardPage ? 'bg-blue-600 text-white' : 'bg-white/20 text-white'
+                }`}>
                   {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <span className="text-sm font-semibold">
+                <span className={`text-sm font-semibold max-w-[100px] sm:max-w-[150px] truncate ${
+                  isDashboardPage ? 'text-slate-800' : 'text-white'
+                }`}>
                   {user.full_name ? user.full_name.split(' ')[0] : 'User'}
                 </span>
-                <ChevronDown className="w-4 h-4 opacity-70" />
+                <ChevronDown className={`w-4 h-4 shrink-0 ${isDashboardPage ? 'text-slate-500' : 'opacity-70'}`} />
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg p-1.5 z-50">
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl p-1.5 z-50">
                   <div className="px-3 py-2 border-b border-slate-100 mb-1">
-                    <p className="text-xs font-bold text-slate-900">{user.full_name || 'User'}</p>
+                    <p className="text-xs font-bold text-slate-900 truncate">{user.full_name || 'User'}</p>
                     <p className="text-[11px] text-slate-500 capitalize">{user.role || 'Attendee'}</p>
                   </div>
 
@@ -220,11 +228,17 @@ export default function Navbar() {
                     My Bookings
                   </Link>
 
+                  <Link to="/customer/profile" onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-lg">
+                    <User className="w-4 h-4 text-slate-500" />
+                    My Profile
+                  </Link>
+
                   {(isAdmin || isOrganizer) && (
-                    <Link to="/admin" onClick={() => setDropdownOpen(false)}
+                    <Link to={isAdmin ? "/superadmin" : "/admin"} onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-purple-600 hover:bg-purple-50 rounded-lg">
                       <ShieldCheck className="w-4 h-4" />
-                      Admin Dashboard
+                      {isAdmin ? 'SuperAdmin Panel' : 'Organizer Panel'}
                     </Link>
                   )}
 
@@ -239,11 +253,10 @@ export default function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Link to="/login" className="navbar-login-btn">Login</Link>
-              <Link to="/register" className="navbar-register-btn">Register</Link>
+              <Link to="/register" className="navbar-register-btn hidden sm:inline-block">Register</Link>
             </div>
           )}
         </div>
-        )}
 
       </div>
     </header>

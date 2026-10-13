@@ -202,6 +202,22 @@ input, select, textarea {
 }
 .navbar-user-btn:hover { background: rgba(255,255,255,0.2); }
 
+.navbar-user-btn-light {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border-radius: 999px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  color: #1E293B;
+  transition: all 0.2s;
+}
+.navbar-user-btn-light:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
+
 .navbar-search {
   position: relative;
   width: 260px;
@@ -729,14 +745,15 @@ input, select, textarea {
 
   .dashboard-sidebar {
     position: fixed;
-    top: 0;
+    top: 64px;
     left: 0;
-    width: 260px;
-    height: 100vh;
-    min-height: 100vh;
+    width: 270px;
+    height: calc(100vh - 64px);
+    min-height: calc(100vh - 64px);
     transform: translateX(-100%);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-    padding-bottom: 16px;
+    padding-bottom: 24px;
+    z-index: 45;
   }
 
   .dashboard-sidebar.sidebar-open {
