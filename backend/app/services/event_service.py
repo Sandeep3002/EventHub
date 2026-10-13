@@ -51,6 +51,10 @@ class EventService:
         events = []
         async for event in cursor:
             event["id"] = str(event["_id"])
+            if event.get("organizer_id"):
+                org = await db.users.find_one({"_id": event["organizer_id"]})
+                if org:
+                    event["organizer_name"] = org.get("full_name") or org.get("email")
             events.append(event)
         return events
 
@@ -61,15 +65,19 @@ class EventService:
         if not event:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
         event["id"] = str(event["_id"])
+        if event.get("organizer_id"):
+            org = await db.users.find_one({"_id": event["organizer_id"]})
+            if org:
+                event["organizer_name"] = org.get("full_name") or org.get("email")
         return event
 
     @staticmethod
-    async def update_event(event_id: str, event_in: EventUpdate, user_id: str) -> dict:
+    async def update_event(event_id: str, event_in: EventUpdate, user_id: str, user_role: str = "") -> dict:
         db = get_database()
         event = await db.events.find_one({"_id": event_id})
         if not event:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
-        if event["organizer_id"] != user_id:
+        if event["organizer_id"] != user_id and user_role not in ("admin", "superadmin"):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this event")
 
         update_data = {k: v for k, v in event_in.dict(exclude_unset=True).items()}

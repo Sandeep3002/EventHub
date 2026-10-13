@@ -5,7 +5,7 @@ import { authService } from '../services/authService';
 import { Ticket, Calendar, Sparkles, Bell, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,6 +19,20 @@ export default function Login() {
 
   const redirectTarget = location.state?.from;
 
+  React.useEffect(() => {
+    if (user) {
+      if (redirectTarget) {
+        navigate(redirectTarget, { replace: true });
+      } else if (user.role === 'superadmin') {
+        navigate('/superadmin', { replace: true });
+      } else if (user.role === 'admin' || user.role === 'organizer') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/customer', { replace: true });
+      }
+    }
+  }, [user, navigate, redirectTarget]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -26,7 +40,7 @@ export default function Login() {
 
     try {
       // 1. Submit Email + Password to FastAPI Backend (checks MongoDB user record)
-      const data = await login(email, password);
+      const data = await login(email, password, rememberMe);
       const userRole = data?.user?.role || 'attendee';
 
       // 2. Flow Redirection: If user was redirected from a protected route, go back there
@@ -234,8 +248,7 @@ export default function Login() {
                   setForgotMsg('A password reset link has been sent to your email.');
                   setTimeout(() => setForgotMsg(''), 6000);
                 } catch (err) {
-                  setForgotMsg('A password reset link has been sent to your email.');
-                  setTimeout(() => setForgotMsg(''), 6000);
+                  setError(err.message || 'Failed to send reset email. Please try again.');
                 }
               }} className="font-semibold text-indigo-600 hover:underline">
                 Forgot password?

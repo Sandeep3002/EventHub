@@ -159,6 +159,7 @@ export default function CustomerBookings() {
                     <th>Pass Code</th>
                     <th>Date</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -180,9 +181,27 @@ export default function CustomerBookings() {
                       <td>
                         <span style={{
                           padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
-                          background: b.status === 'confirmed' ? '#ecfdf5' : '#fffbeb',
-                          color: b.status === 'confirmed' ? '#10b981' : '#f59e0b',
+                          background: b.status === 'confirmed' ? '#ecfdf5' : b.status === 'cancelled' ? '#fef2f2' : '#fffbeb',
+                          color: b.status === 'confirmed' ? '#10b981' : b.status === 'cancelled' ? '#ef4444' : '#f59e0b',
                         }}>{b.status || 'pending'}</span>
+                      </td>
+                      <td>
+                        {b.status !== 'cancelled' && (
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm('Cancel this booking? Seats will be restored.')) return;
+                              try {
+                                await bookingService.cancelRegistration(b.id || b._id);
+                                setBookings(prev => prev.map(x => (x.id || x._id) === (b.id || b._id) ? { ...x, status: 'cancelled' } : x));
+                              } catch (err) {
+                                alert('Failed to cancel: ' + err.message);
+                              }
+                            }}
+                            className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline"
+                          >
+                            Cancel
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

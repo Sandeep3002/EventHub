@@ -1,7 +1,33 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
+export function getToken() {
+  return localStorage.getItem('eventhub_token') || sessionStorage.getItem('eventhub_token');
+}
+
+export function getUser() {
+  const raw = localStorage.getItem('eventhub_user') || sessionStorage.getItem('eventhub_user');
+  return raw ? JSON.parse(raw) : null;
+}
+
+export function setAuth(token, user, remember = true) {
+  const storage = remember ? localStorage : sessionStorage;
+  storage.setItem('eventhub_token', token);
+  storage.setItem('eventhub_user', JSON.stringify(user));
+  // Clear the other storage
+  const other = remember ? sessionStorage : localStorage;
+  other.removeItem('eventhub_token');
+  other.removeItem('eventhub_user');
+}
+
+export function clearAuth() {
+  localStorage.removeItem('eventhub_token');
+  localStorage.removeItem('eventhub_user');
+  sessionStorage.removeItem('eventhub_token');
+  sessionStorage.removeItem('eventhub_user');
+}
+
 export const getAuthHeader = () => {
-  const token = localStorage.getItem('eventhub_token');
+  const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

@@ -83,11 +83,17 @@ async def forgot_password(req: ForgotPasswordRequest):
     )
 
     # Send the email
-    await send_password_reset_email(
+    email_sent = await send_password_reset_email(
         email_to=req.email,
         user_name=user.get("full_name", "User"),
         reset_token=reset_token
     )
+
+    if not email_sent:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send reset email. Please try again later."
+        )
 
     return {"message": "If an account with that email exists, a reset link has been sent."}
 

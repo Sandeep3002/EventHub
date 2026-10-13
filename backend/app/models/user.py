@@ -19,5 +19,11 @@ class UserInDB(BaseModel):
     hashed_password: str
     role: UserRole = UserRole.ATTENDEE
     is_active: bool = True
+    razorpay_account_id: Optional[str] = None
+    payout_bank_name: Optional[str] = None
+    payout_account_number_masked: Optional[str] = None
+    payout_ifsc: Optional[str] = None
+    payout_beneficiary_name: Optional[str] = None
+    payout_status: str = "unconfigured"
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

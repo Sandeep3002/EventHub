@@ -4,12 +4,12 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.category import CategoryCreate, CategoryResponse
 from app.database import get_database
-from app.routes.auth import get_current_user
+from app.routes.auth import get_current_user, require_admin
 
 router = APIRouter()
 
 @router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
-async def create_category(cat_in: CategoryCreate, current_user: dict = Depends(get_current_user)):
+async def create_category(cat_in: CategoryCreate, current_user: dict = Depends(require_admin)):
     db = get_database()
     cat_dict = cat_in.dict()
     cat_dict["_id"] = str(uuid4())
@@ -27,3 +27,24 @@ async def list_categories():
         c["id"] = str(c["_id"])
         cats.append(c)
     return cats
+
+@router.put("/{category_id}", response_model=CategoryResponse)
+async def update_category(category_id: str, cat_in: CategoryCreate, current_user: dict = Depends(require_admin)):
+    db = get_database()
+    existing = await db.categories.find_one({"_id": category_id})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Category not found")
+    update_dict = cat_in.dict()
+    update_dict["updated_at"] = datetime.utcnow()
+    await db.categories.update_one({"_id": category_id}, {"$set": update_dict})
+    updated = await db.categories.find_one({"_id": category_id})
+    updated["id"] = str(updated["_id"])
+    return updated
+
+@router.delete("/{category_id}")
+async def delete_category(category_id: str, current_user: dict = Depends(require_admin)):
+    db = get_database()
+    result = await db.categories.delete_one({"_id": category_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Category not found")
+    return {"message": "Category deleted"}

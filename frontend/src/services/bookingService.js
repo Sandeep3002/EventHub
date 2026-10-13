@@ -51,10 +51,33 @@ export const bookingService = {
     return await request(`/registrations/${registrationId}`, { method: 'DELETE' });
   },
 
+  async cancelRegistration(registrationId) {
+    return await request(`/registrations/${registrationId}/cancel`, { method: 'PUT' });
+  },
+
   async processPayment(registrationId, paymentMethod = 'credit_card') {
     return await request('/payments', {
       method: 'POST',
       body: JSON.stringify({ registration_id: registrationId, payment_method: paymentMethod }),
     });
+  },
+
+  async getOrganizerPayouts() {
+    return await request('/payments/organizer-payouts');
+  },
+
+  async getPayoutSettings() {
+    return await request('/payments/payout-settings');
+  },
+
+  async updatePayoutSettings(data) {
+    return await request('/payments/payout-settings', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  async getPlatformRevenueBreakdown() {
+    return await request('/payments/platform-revenue');
   },
 };

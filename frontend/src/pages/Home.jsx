@@ -42,7 +42,7 @@ export default function Home() {
     setError('');
     setLoading(true);
     try {
-      const data = await login(email, password);
+      const data = await login(email, password, rememberMe);
       const userRole = data?.user?.role || 'attendee';
       if (userRole === 'superadmin') navigate('/superadmin', { replace: true });
       else if (userRole === 'admin' || userRole === 'organizer') navigate('/admin', { replace: true });
@@ -63,7 +63,7 @@ export default function Home() {
     }
     setLoading(true);
     try {
-      await register(regName, regEmail, regPassword, regRole);
+      await register(regName, regEmail, regPassword, regRole, true);
       navigate('/');
     } catch (err) {
       setError(err.message || 'Registration failed.');
@@ -175,8 +175,7 @@ export default function Home() {
                       setForgotMsg('A password reset link has been sent to your email.');
                       setTimeout(() => setForgotMsg(''), 6000);
                     } catch (err) {
-                      setForgotMsg('A password reset link has been sent to your email.');
-                      setTimeout(() => setForgotMsg(''), 6000);
+                      setError(err.message || 'Failed to send reset email. Please try again.');
                     }
                   }} className="text-purple-600 font-semibold hover:underline">Forgot Password?</button>
                 </div>

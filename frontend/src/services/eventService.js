@@ -29,6 +29,13 @@ export const eventService = {
     });
   },
 
+  async updateEvent(id, eventData) {
+    return await request(`/events/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(eventData)
+    });
+  },
+
   async deleteEvent(id) {
     return await request(`/events/${id}`, { method: 'DELETE' });
   },
@@ -40,10 +47,32 @@ export const eventService = {
     });
   },
 
+  async updateCategory(id, catData) {
+    return await request(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(catData)
+    });
+  },
+
+  async deleteCategory(id) {
+    return await request(`/categories/${id}`, { method: 'DELETE' });
+  },
+
   async createVenue(venueData) {
     return await request('/venues', {
       method: 'POST',
       body: JSON.stringify(venueData)
     });
-  }
+  },
+
+  async updateVenue(id, venueData) {
+    return await request(`/venues/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(venueData)
+    });
+  },
+
+  async deleteVenue(id) {
+    return await request(`/venues/${id}`, { method: 'DELETE' });
+  },
 };

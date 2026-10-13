@@ -3,12 +3,12 @@ from fastapi import APIRouter, Depends, Query, status
 from app.schemas.event import EventCreate, EventUpdate, EventResponse
 from app.services.event_service import EventService
 from app.services.activity_service import ActivityService
-from app.routes.auth import get_current_user
+from app.routes.auth import get_current_user, require_admin
 
 router = APIRouter()
 
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
-async def create_event(event_in: EventCreate, current_user: dict = Depends(get_current_user)):
+async def create_event(event_in: EventCreate, current_user: dict = Depends(require_admin)):
     result = await EventService.create_event(event_in, organizer_id=current_user["id"])
     await ActivityService.log_activity(
         actor_id=current_user["id"], actor_name=current_user.get("full_name", ""),
@@ -38,7 +38,9 @@ async def update_event(
     event_in: EventUpdate,
     current_user: dict = Depends(get_current_user)
 ):
-    result = await EventService.update_event(event_id, event_in, current_user["id"])
+    result = await EventService.update_event(
+        event_id, event_in, current_user["id"], user_role=current_user.get("role", "")
+    )
     await ActivityService.log_activity(
         actor_id=current_user["id"], actor_name=current_user.get("full_name", ""),
         actor_role=current_user.get("role", "admin"), action="updated_event",
@@ -48,7 +50,7 @@ async def update_event(
     return result
 
 @router.delete("/{event_id}", status_code=status.HTTP_200_OK)
-async def delete_event(event_id: str, current_user: dict = Depends(get_current_user)):
+async def delete_event(event_id: str, current_user: dict = Depends(require_admin)):
     result = await EventService.delete_event(event_id)
     await ActivityService.log_activity(
         actor_id=current_user["id"], actor_name=current_user.get("full_name", ""),

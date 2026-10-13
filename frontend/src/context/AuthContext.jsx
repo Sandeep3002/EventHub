@@ -21,14 +21,14 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const data = await authService.login(email, password);
+  const login = async (email, password, remember = true) => {
+    const data = await authService.login(email, password, remember);
     setUser(data.user);
     return data;
   };
 
-  const register = async (fullName, email, password, role) => {
-    const data = await authService.register(fullName, email, password, role);
+  const register = async (fullName, email, password, role, remember = true) => {
+    const data = await authService.register(fullName, email, password, role, remember);
     setUser(data.user);
     return data;
   };

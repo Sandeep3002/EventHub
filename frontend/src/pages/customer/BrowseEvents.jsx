@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { eventService } from '../../services/eventService';
+import { favoriteService } from '../../services/favoriteService';
 import { useAuth } from '../../context/AuthContext';
 import CheckoutModal from '../../components/CheckoutModal';
 import RegistrationFormModal from '../../components/RegistrationFormModal';
@@ -25,7 +26,12 @@ export default function BrowseEvents() {
       setEvents(Array.isArray(evts) ? evts : []);
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, []);
+    if (user) {
+      favoriteService.getFavorites().then(favs => {
+        setSavedEvents(favs.map(f => f.event_id));
+      }).catch(() => {});
+    }
+  }, [user]);
 
   const filtered = events.filter(e =>
     !search || (e.title || '').toLowerCase().includes(search.toLowerCase())
@@ -43,8 +49,17 @@ export default function BrowseEvents() {
     catch { return ''; }
   };
 
-  const toggleSave = (id) => {
-    setSavedEvents(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleSave = async (id) => {
+    if (!user) return;
+    try {
+      if (savedEvents.includes(id)) {
+        await favoriteService.removeFavorite(id);
+        setSavedEvents(prev => prev.filter(x => x !== id));
+      } else {
+        await favoriteService.addFavorite(id);
+        setSavedEvents(prev => [...prev, id]);
+      }
+    } catch { /* ignore */ }
   };
 
   const handleRegister = () => {

@@ -16,7 +16,7 @@ import {
   MapPin,
   ChevronDown,
   ShieldCheck,
-  Activity,
+  CreditCard,
   FileText,
   Menu,
   X,
@@ -43,7 +43,7 @@ export default function Sidebar({ role = 'attendee' }) {
 
   const superadminNav = [
     { label: 'Dashboard', path: '/superadmin', icon: ShieldCheck },
-    { label: 'Activity Log', path: '/superadmin/activities', icon: Activity },
+    { label: 'Bank Details', path: '/superadmin/bank-details', icon: CreditCard },
     { label: 'All Events', path: '/superadmin/events', icon: Calendar },
     { label: 'All Registrations', path: '/superadmin/registrations', icon: FileText },
     { label: 'Manage Users', path: '/superadmin/users', icon: Users },
@@ -58,6 +58,7 @@ export default function Sidebar({ role = 'attendee' }) {
     { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
     { label: 'Categories', path: '/admin/categories', icon: Grid },
     { label: 'Venues', path: '/admin/venues', icon: MapPin },
+    { label: 'Bank Details', path: '/admin/bank-details', icon: CreditCard },
     { label: 'Settings', path: '/settings', icon: Settings },
   ];
 
@@ -93,7 +94,7 @@ export default function Sidebar({ role = 'attendee' }) {
 
       <aside className={`dashboard-sidebar ${mobileOpen ? 'sidebar-open' : ''}`}>
         {/* Navigation List */}
-        <div className="space-y-1 flex-1">
+        <div className="flex-1 overflow-y-auto space-y-1">
           {navItems.map((item, idx) => {
             const IconComponent = item.icon;
             return (
@@ -111,7 +112,7 @@ export default function Sidebar({ role = 'attendee' }) {
         </div>
 
         {/* Bottom User Profile Badge */}
-        <div className="mt-auto pt-4 border-t border-slate-100 relative">
+        <div className="shrink-0 pt-4 border-t border-slate-100 relative">
           <button
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
             className="w-full flex items-center justify-between p-1.5 pr-3 bg-blue-50/70 hover:bg-blue-100/70 rounded-full border border-blue-100 transition text-left"

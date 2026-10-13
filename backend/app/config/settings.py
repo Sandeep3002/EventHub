@@ -16,6 +16,8 @@ class Settings(BaseSettings):
 
     RAZORPAY_KEY_ID: str = os.getenv("RAZORPAY_KEY_ID", "rzp_test_REPLACE_ME")
     RAZORPAY_KEY_SECRET: str = os.getenv("RAZORPAY_KEY_SECRET", "REPLACE_ME")
+    GATEWAY_FEE_PERCENT: float = float(os.getenv("GATEWAY_FEE_PERCENT", "2.0"))
+    GST_ON_FIXED_FEE: float = float(os.getenv("GST_ON_FIXED_FEE", "3.6"))
 
     SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { bookingService } from '../../services/bookingService';
+import { eventService } from '../../services/eventService';
+import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
 import { Users, QrCode, CheckCircle2, Search, Mail, X, Send, Calendar, Clock, Ticket, Trash2, Download, Check } from 'lucide-react';
 
 export default function Registrations() {
+  const { user } = useAuth();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,7 +24,13 @@ export default function Registrations() {
     async function load() {
       try {
         const data = await bookingService.getAllRegistrations();
-        const list = Array.isArray(data) ? data : [];
+        let list = Array.isArray(data) ? data : [];
+        // Organizers see only registrations for their own events
+        if (user?.role === 'organizer') {
+          const events = await eventService.getEvents();
+          const myEventIds = events.filter(e => e.organizer_id === user.id).map(e => e.id || e._id);
+          list = list.filter(r => myEventIds.includes(r.event_id));
+        }
         setRegistrations(list);
       } catch (err) {
         console.error('Failed to load registrations:', err);

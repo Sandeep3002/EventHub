@@ -4,7 +4,8 @@ from fastapi import APIRouter, Depends, status
 from app.schemas.registration import RegistrationCreate, RegistrationResponse
 from app.services.registration_service import RegistrationService
 from app.services.activity_service import ActivityService
-from app.routes.auth import get_current_user
+from app.routes.auth import get_current_user, require_admin
+from app.routes.notifications import create_notification
 
 router = APIRouter()
 
@@ -22,6 +23,13 @@ async def register_for_event(
         target_id=result.get("id", ""),
         details=f"New registration for '{result.get('event_title', 'Event')}' by {reg_in.attendee_name or 'attendee'}, amount ₹{result.get('total_amount', 0)}",
     )
+    await create_notification(
+        user_id=current_user["id"],
+        title="Booking Confirmed",
+        message=f"Your booking for '{result.get('event_title', 'Event')}' is confirmed. Pass: {result.get('qr_code_token', '')}",
+        notif_type="booking",
+        link=f"/customer/bookings",
+    )
     return result
 
 
@@ -31,18 +39,30 @@ async def get_my_registrations(current_user: dict = Depends(get_current_user)):
 
 
 @router.get("/all")
-async def get_all_registrations(current_user: dict = Depends(get_current_user)):
+async def get_all_registrations(current_user: dict = Depends(require_admin)):
     return await RegistrationService.get_all_registrations()
 
 
 @router.delete("/{registration_id}")
 async def delete_registration(registration_id: str, current_user: dict = Depends(get_current_user)):
-    result = await RegistrationService.delete_registration(registration_id)
+    result = await RegistrationService.delete_registration(registration_id, current_user)
     await ActivityService.log_activity(
         actor_id=current_user["id"], actor_name=current_user.get("full_name", ""),
         actor_role=current_user.get("role", "admin"), action="deleted_registration",
         target_type="registration", target_name=f"Registration {registration_id}",
         target_id=registration_id, details=f"Deleted registration {registration_id}",
+    )
+    return result
+
+
+@router.put("/{registration_id}/cancel")
+async def cancel_registration(registration_id: str, current_user: dict = Depends(get_current_user)):
+    result = await RegistrationService.cancel_registration(registration_id, current_user["id"])
+    await ActivityService.log_activity(
+        actor_id=current_user["id"], actor_name=current_user.get("full_name", ""),
+        actor_role=current_user.get("role", "attendee"), action="cancelled_registration",
+        target_type="registration", target_name=f"Registration {registration_id}",
+        target_id=registration_id, details=f"Cancelled registration {registration_id}",
     )
     return result
 
@@ -54,5 +74,5 @@ class SendEmailRequest(BaseModel):
 
 
 @router.post("/send-email")
-async def send_email_to_attendees(req: SendEmailRequest, current_user: dict = Depends(get_current_user)):
+async def send_email_to_attendees(req: SendEmailRequest, current_user: dict = Depends(require_admin)):
     return await RegistrationService.send_email_to_attendees(req.registration_ids, req.subject, req.message)

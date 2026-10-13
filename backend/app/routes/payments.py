@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas.payment import PaymentCreate, PaymentResponse
 from app.services.payment_service import PaymentService
 from app.routes.auth import get_current_user
@@ -58,3 +58,39 @@ async def process_payment(
 @router.get("/my-payments", response_model=List[PaymentResponse])
 async def get_my_payments(current_user: dict = Depends(get_current_user)):
     return await PaymentService.get_user_payments(current_user["id"])
+
+
+@router.get("/organizer-payouts")
+async def get_organizer_payouts(current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("_id") or current_user.get("id")
+    return await PaymentService.get_organizer_payouts(user_id)
+
+
+@router.get("/payout-settings")
+async def get_payout_settings(current_user: dict = Depends(get_current_user)):
+    user_id = current_user.get("_id") or current_user.get("id")
+    return await PaymentService.get_payout_settings(user_id)
+
+
+class PayoutSettingsRequest(BaseModel):
+    razorpay_account_id: Optional[str] = None
+    payout_bank_name: Optional[str] = None
+    payout_account_number: Optional[str] = None
+    payout_ifsc: Optional[str] = None
+    payout_beneficiary_name: Optional[str] = None
+
+
+@router.put("/payout-settings")
+async def update_payout_settings(
+    settings_in: PayoutSettingsRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = current_user.get("_id") or current_user.get("id")
+    return await PaymentService.update_payout_settings(user_id, settings_in.dict())
+
+
+@router.get("/platform-revenue")
+async def get_platform_revenue(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") not in ("superadmin", "admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    return await PaymentService.get_platform_revenue_breakdown()

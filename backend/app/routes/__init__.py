@@ -9,6 +9,8 @@ from .registrations import router as registrations_router
 from .payments import router as payments_router
 from .activities import router as activities_router
 from .stats import router as stats_router
+from .notifications import router as notifications_router
+from .favorites import router as favorites_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
@@ -21,3 +23,5 @@ api_router.include_router(registrations_router, prefix="/registrations", tags=["
 api_router.include_router(payments_router, prefix="/payments", tags=["Payments"])
 api_router.include_router(activities_router, prefix="/activities", tags=["Activities"])
 api_router.include_router(stats_router, prefix="/stats", tags=["Stats"])
+api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_router.include_router(favorites_router, prefix="/favorites", tags=["Favorites"])

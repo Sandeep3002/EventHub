@@ -19,7 +19,7 @@ import ResetPassword from './pages/ResetPassword';
 
 // Super Admin Pages
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
-import ActivityLog from './pages/superadmin/ActivityLog';
+import SuperAdminBankDetails from './pages/superadmin/SuperAdminBankDetails';
 import AllEvents from './pages/superadmin/AllEvents';
 import AllRegistrations from './pages/superadmin/AllRegistrations';
 
@@ -32,6 +32,7 @@ import Analytics from './pages/organizer/Analytics';
 import ManageCategories from './pages/admin/ManageCategories';
 import ManageVenues from './pages/admin/ManageVenues';
 import ManageUsers from './pages/admin/ManageUsers';
+import BankDetails from './pages/organizer/BankDetails';
 
 // Customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
@@ -84,7 +85,8 @@ function AppLayout() {
 
           {/* Super Admin Suite */}
           <Route path="/superadmin" element={<ProtectedRoute requiredRole="superadmin"><SuperAdminDashboard /></ProtectedRoute>} />
-          <Route path="/superadmin/activities" element={<ProtectedRoute requiredRole="superadmin"><ActivityLog /></ProtectedRoute>} />
+          <Route path="/superadmin/bank-details" element={<ProtectedRoute requiredRole="superadmin"><SuperAdminBankDetails /></ProtectedRoute>} />
+          <Route path="/superadmin/activities" element={<Navigate to="/superadmin" replace />} />
           <Route path="/superadmin/events" element={<ProtectedRoute requiredRole="superadmin"><AllEvents /></ProtectedRoute>} />
           <Route path="/superadmin/registrations" element={<ProtectedRoute requiredRole="superadmin"><AllRegistrations /></ProtectedRoute>} />
           <Route path="/superadmin/users" element={<ProtectedRoute requiredRole="superadmin"><ManageUsers /></ProtectedRoute>} />
@@ -98,6 +100,7 @@ function AppLayout() {
           <Route path="/admin/categories" element={<ProtectedRoute requiredRole="admin"><ManageCategories /></ProtectedRoute>} />
           <Route path="/admin/venues" element={<ProtectedRoute requiredRole="admin"><ManageVenues /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><ManageUsers /></ProtectedRoute>} />
+          <Route path="/admin/bank-details" element={<ProtectedRoute requiredRole="admin"><BankDetails /></ProtectedRoute>} />
 
           {/* Backwards compat — old /organizer/* routes redirect to /admin/* */}
           <Route path="/organizer" element={<Navigate to="/admin" replace />} />

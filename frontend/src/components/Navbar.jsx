@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Search, User, LogOut, LayoutDashboard, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X } from 'lucide-react';
+import { notificationService } from '../services/notificationService';
 
 export default function Navbar() {
   const { user, logout, isAdmin, isOrganizer } = useAuth();
@@ -10,11 +11,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [expandedNotif, setExpandedNotif] = useState(null);
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: 'booking', title: 'Booking Confirmed', message: 'Your ticket for Tech Conference 2026 has been confirmed. Show your QR pass at the venue entrance. Check your email for the full receipt.', time: '2 min ago', read: false },
-    { id: 2, type: 'event', title: 'Event Reminder', message: 'Python Workshop starts tomorrow at 10:00 AM at Hyderabad Convention Center, Hall B. Don\'t forget to bring your laptop and charger.', time: '1 hour ago', read: false },
-    { id: 3, type: 'info', title: 'Welcome to EventHub', message: 'Complete your profile to get personalized event recommendations based on your interests and location. Head to Settings to update your preferences.', time: '1 day ago', read: true },
-  ]);
+  const [notifications, setNotifications] = useState([]);
   const notifRef = useRef(null);
 
   useEffect(() => {
@@ -24,6 +21,18 @@ export default function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      notificationService.getNotifications().then(notifs => {
+        setNotifications(notifs.map(n => ({
+          id: n.id, type: n.type || 'info', title: n.title, message: n.message,
+          time: new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }),
+          read: n.is_read, link: n.link,
+        })));
+      }).catch(() => {});
+    }
+  }, [user]);
   const isDashboardPage = location.pathname.startsWith('/superadmin') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/customer') || location.pathname.startsWith('/organizer') || location.pathname.startsWith('/settings');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -103,7 +112,7 @@ export default function Navbar() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
                   <h3 className="text-sm font-bold text-slate-900">Notifications</h3>
                   <button
-                    onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
+                    onClick={() => { notificationService.markAllRead().catch(() => {}); setNotifications(prev => prev.map(n => ({ ...n, read: true }))); }}
                     className="text-xs font-semibold text-purple-600 hover:underline"
                   >
                     Mark all read
@@ -151,14 +160,10 @@ export default function Navbar() {
                           </div>
                           {isExpanded && (
                             <div className="mt-2 ml-11 flex gap-2">
-                              {n.type === 'booking' && (
-                                <button onClick={(e) => { e.stopPropagation(); }} className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full hover:bg-purple-100 transition">View Ticket</button>
-                              )}
-                              {n.type === 'event' && (
-                                <button onClick={(e) => { e.stopPropagation(); }} className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full hover:bg-blue-100 transition">View Event</button>
-                              )}
-                              {n.type === 'info' && (
-                                <button onClick={(e) => { e.stopPropagation(); }} className="text-[10px] font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full hover:bg-slate-200 transition">Go to Settings</button>
+                              {n.link && (
+                                <button onClick={(e) => { e.stopPropagation(); navigate(n.link); setNotifOpen(false); }} className="text-[10px] font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full hover:bg-purple-100 transition">
+                                  {n.type === 'booking' ? 'View Ticket' : n.type === 'event' ? 'View Event' : 'View'}
+                                </button>
                               )}
                               <button onClick={(e) => { e.stopPropagation(); setNotifications(prev => prev.filter(x => x.id !== n.id)); }}
                                 className="text-[10px] font-semibold text-red-500 bg-red-50 px-3 py-1 rounded-full hover:bg-red-100 transition">Dismiss</button>
@@ -180,7 +185,7 @@ export default function Navbar() {
 
         {/* Right Actions - hidden on dashboard pages */}
         {!isDashboardPage && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           {user ? (
             <div className="relative">
               <button

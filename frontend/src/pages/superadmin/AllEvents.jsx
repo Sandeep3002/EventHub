@@ -6,19 +6,35 @@ import { Calendar, Search, Eye, Trash2, CheckCircle2, XCircle } from 'lucide-rea
 
 export default function AllEvents() {
   const [events, setEvents] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    eventService.getEvents().then(evts => {
+    Promise.all([
+      eventService.getEvents(),
+      eventService.getCategories().catch(() => []),
+      request('/users', {}, []).catch(() => []),
+    ]).then(([evts, cats, usrs]) => {
       setEvents(Array.isArray(evts) ? evts : []);
+      setCategories(Array.isArray(cats) ? cats : []);
+      setUsers(Array.isArray(usrs) ? usrs : []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
 
-  const filtered = events.filter(e =>
-    !search || (e.title || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const getOrganizerName = (e) => {
+    if (e.organizer_name) return e.organizer_name;
+    const found = users.find(u => (u.id || u._id) === e.organizer_id);
+    return found?.full_name || found?.email || 'Organizer';
+  };
+
+  const filtered = events.filter(e => {
+    const org = getOrganizerName(e).toLowerCase();
+    const q = search.toLowerCase();
+    return !search || (e.title || '').toLowerCase().includes(q) || org.includes(q);
+  });
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this event?')) return;
@@ -59,7 +75,7 @@ export default function AllEvents() {
 
         <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2.5">
           <Search className="w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Search events..." value={search}
+          <input type="text" placeholder="Search events by name or organizer..." value={search}
             onChange={e => setSearch(e.target.value)}
             className="border-none outline-none bg-transparent text-sm text-slate-700 w-full" />
         </div>
@@ -73,6 +89,7 @@ export default function AllEvents() {
                 <thead>
                   <tr>
                     <th>Event Name</th>
+                    <th>Organizer</th>
                     <th>Category</th>
                     <th>Date</th>
                     <th>Price</th>
@@ -84,10 +101,26 @@ export default function AllEvents() {
                 <tbody>
                   {filtered.map(e => {
                     const id = e.id || e._id;
+                    const orgName = getOrganizerName(e);
                     return (
                       <tr key={id}>
                         <td className="font-semibold text-slate-900">{e.title}</td>
-                        <td className="text-xs text-slate-600">{e.category_id || 'General'}</td>
+                        <td className="text-xs">
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '8px',
+                            fontWeight: 600, color: '#1e293b'
+                          }}>
+                            <span style={{
+                              width: '26px', height: '26px', borderRadius: '50%',
+                              background: '#ede9fe', color: '#7c3aed', display: 'inline-flex',
+                              alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 700
+                            }}>
+                              {(orgName || 'O')[0].toUpperCase()}
+                            </span>
+                            <span>{orgName}</span>
+                          </span>
+                        </td>
+                        <td className="text-xs text-slate-600">{categories.find(c => c.id === e.category_id)?.name || e.category_id || 'General'}</td>
                         <td className="text-xs">{formatDate(e.start_time)}</td>
                         <td className="font-bold text-emerald-600">₹{e.price || 0}</td>
                         <td className="text-xs">{e.available_tickets || 0}/{e.capacity || 0}</td>

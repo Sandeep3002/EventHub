@@ -1,36 +1,38 @@
-import { request } from './api';
+import { request, setAuth, clearAuth, getToken } from './api';
 
 export const authService = {
-  async login(email, password) {
+  async login(email, password, remember = true) {
     const data = await request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
     });
-    localStorage.setItem('eventhub_token', data.access_token);
-    localStorage.setItem('eventhub_user', JSON.stringify(data.user));
+    setAuth(data.access_token, data.user, remember);
     return data;
   },
 
-  async register(fullName, email, password, role = 'attendee') {
+  async register(fullName, email, password, role = 'attendee', remember = true) {
     const data = await request('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ full_name: fullName, email, password, role })
     });
-    localStorage.setItem('eventhub_token', data.access_token);
-    localStorage.setItem('eventhub_user', JSON.stringify(data.user));
+    setAuth(data.access_token, data.user, remember);
     return data;
   },
 
   async getMe() {
-    const token = localStorage.getItem('eventhub_token');
+    const token = getToken();
     if (!token) return null;
     try {
       const user = await request('/auth/me');
-      localStorage.setItem('eventhub_user', JSON.stringify(user));
+      // Preserve in whichever storage has the token
+      if (localStorage.getItem('eventhub_token')) {
+        localStorage.setItem('eventhub_user', JSON.stringify(user));
+      } else {
+        sessionStorage.setItem('eventhub_user', JSON.stringify(user));
+      }
       return user;
     } catch {
-      localStorage.removeItem('eventhub_token');
-      localStorage.removeItem('eventhub_user');
+      clearAuth();
       return null;
     }
   },
@@ -40,13 +42,16 @@ export const authService = {
       method: 'PUT',
       body: JSON.stringify(updateData)
     });
-    localStorage.setItem('eventhub_user', JSON.stringify(data));
+    if (localStorage.getItem('eventhub_token')) {
+      localStorage.setItem('eventhub_user', JSON.stringify(data));
+    } else {
+      sessionStorage.setItem('eventhub_user', JSON.stringify(data));
+    }
     return data;
   },
 
   logout() {
-    localStorage.removeItem('eventhub_token');
-    localStorage.removeItem('eventhub_user');
+    clearAuth();
   },
 
   async forgotPassword(email) {

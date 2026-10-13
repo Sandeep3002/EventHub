@@ -2,18 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { eventService } from '../../services/eventService';
+import { useAuth } from '../../context/AuthContext';
 import { Eye, Edit3, Trash2, Plus } from 'lucide-react';
 
 export default function ManageEvents() {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
+  const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadEvents() {
       try {
-        const data = await eventService.getEvents();
-        const list = Array.isArray(data) ? data : (data?.value || data?.items || []);
+        const [data, vens] = await Promise.all([
+          eventService.getEvents(),
+          eventService.getVenues(),
+        ]);
+        let list = Array.isArray(data) ? data : (data?.value || data?.items || []);
+        // Organizers see only their own events; admins/superadmins see all
+        if (user?.role === 'organizer') {
+          list = list.filter(e => e.organizer_id === user.id);
+        }
         setEvents(list);
+        setVenues(vens);
       } catch (err) {
         console.error('Failed to load events:', err);
         setEvents([]);
@@ -83,7 +94,7 @@ export default function ManageEvents() {
                       <tr key={id}>
                         <td className="font-semibold text-slate-900">{evt.title}</td>
                         <td>{formatDate(evt.start_time)}</td>
-                        <td>{evt.venue_id || '-'}</td>
+                        <td>{venues.find(v => v.id === evt.venue_id)?.name || evt.venue_id || '-'}</td>
                         <td>{evt.available_tickets || 0} / {evt.capacity || 0}</td>
                         <td>
                           <span className={`status-pill status-${(evt.status || 'draft').toLowerCase()}`}>
@@ -92,7 +103,7 @@ export default function ManageEvents() {
                         </td>
                         <td>
                           <div className="flex items-center gap-3 text-slate-400">
-                            <Link to={`/admin/manage-events`} className="hover:text-blue-600">
+                            <Link to="/customer/events" title="View in Events Catalogue" className="hover:text-blue-600">
                               <Eye className="w-4 h-4" />
                             </Link>
                             <Link to={`/admin/create-event?edit=${id}`} className="hover:text-blue-600">

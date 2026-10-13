@@ -37,6 +37,7 @@ class EventResponse(BaseModel):
     category_id: str
     venue_id: str
     organizer_id: str
+    organizer_name: Optional[str] = None
     start_time: datetime
     end_time: datetime
     banner_image: Optional[str] = None

@@ -19,19 +19,20 @@ async def superadmin_stats(current_user: dict = Depends(require_superadmin)):
     revenue_result = await db.registrations.aggregate(revenue_pipeline).to_list(1)
     total_revenue = revenue_result[0]["total"] if revenue_result else 0
 
-    # Recent activities (last 10)
     activities_cursor = db.activities.find().sort("timestamp", -1).limit(10)
     recent_activities = []
     async for a in activities_cursor:
         a["id"] = str(a["_id"])
         recent_activities.append(a)
 
-    # Admin/organizer users list
     admin_cursor = db.users.find({"role": {"$in": ["admin", "organizer"]}})
     admin_users = []
     async for u in admin_cursor:
         u["id"] = str(u["_id"])
         admin_users.append(u)
+
+    platform_commission = round(total_revenue * 0.05, 2)
+    organizer_payouts = round(total_revenue - platform_commission, 2)
 
     return {
         "total_admins": total_admins,
@@ -39,6 +40,9 @@ async def superadmin_stats(current_user: dict = Depends(require_superadmin)):
         "total_events": total_events,
         "total_registrations": total_registrations,
         "total_revenue": total_revenue,
+        "total_platform_commission": platform_commission,
+        "total_organizer_payouts": organizer_payouts,
+        "commission_rate_percent": 5.0,
         "recent_activities": recent_activities,
         "admin_users": admin_users,
     }
@@ -47,14 +51,29 @@ async def superadmin_stats(current_user: dict = Depends(require_superadmin)):
 @router.get("/admin")
 async def admin_stats(current_user: dict = Depends(require_admin)):
     db = get_database()
+    user_role = current_user.get("role", "")
+    user_id = current_user.get("_id") or current_user.get("id")
 
-    total_events = await db.events.count_documents({})
-    total_registrations = await db.registrations.count_documents({})
+    # Organizers see only their own events; admins/superadmins see all
+    event_filter = {"organizer_id": user_id} if user_role == "organizer" else {}
+
+    total_events = await db.events.count_documents(event_filter)
 
     now = datetime.utcnow()
-    upcoming_events = await db.events.count_documents({"start_time": {"$gt": now}})
+    upcoming_filter = {**event_filter, "start_time": {"$gt": now}}
+    upcoming_events = await db.events.count_documents(upcoming_filter)
 
-    revenue_pipeline = [{"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}]
+    # Get event IDs for this organizer to scope registrations
+    if event_filter:
+        event_ids = [e["_id"] async for e in db.events.find(event_filter, {"_id": 1})]
+        reg_filter = {"event_id": {"$in": event_ids}} if event_ids else {"event_id": "__none__"}
+    else:
+        reg_filter = {}
+        event_ids = None
+
+    total_registrations = await db.registrations.count_documents(reg_filter)
+
+    revenue_pipeline = [{"$match": reg_filter}, {"$group": {"_id": None, "total": {"$sum": "$total_amount"}}}]
     revenue_result = await db.registrations.aggregate(revenue_pipeline).to_list(1)
     total_revenue = revenue_result[0]["total"] if revenue_result else 0
 
@@ -68,13 +87,13 @@ async def admin_stats(current_user: dict = Depends(require_admin)):
             month_end = datetime(d.year + 1, 1, 1)
         else:
             month_end = datetime(d.year, d.month + 1, 1)
-        count = await db.registrations.count_documents({
-            "created_at": {"$gte": month_start, "$lt": month_end}
-        })
+        month_reg_filter = {**reg_filter, "created_at": {"$gte": month_start, "$lt": month_end}}
+        count = await db.registrations.count_documents(month_reg_filter)
         months.append({"month": month_names[d.month - 1], "registrations": count})
 
     # Category distribution
     cat_pipeline = [
+        {"$match": event_filter},
         {"$group": {"_id": "$category_id", "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
     ]
@@ -85,7 +104,7 @@ async def admin_stats(current_user: dict = Depends(require_admin)):
     ]
 
     # Recent events (last 6)
-    events_cursor = db.events.find().sort("created_at", -1).limit(6)
+    events_cursor = db.events.find(event_filter).sort("created_at", -1).limit(6)
     recent_events = []
     async for e in events_cursor:
         e["id"] = str(e["_id"])
@@ -94,10 +113,16 @@ async def admin_stats(current_user: dict = Depends(require_admin)):
         e["registration_count"] = reg_count
         recent_events.append(e)
 
+    platform_commission = round(total_revenue * 0.05, 2)
+    net_earnings = round(total_revenue - platform_commission, 2)
+
     return {
         "total_events": total_events,
         "total_registrations": total_registrations,
         "total_revenue": total_revenue,
+        "platform_commission": platform_commission,
+        "net_earnings": net_earnings,
+        "commission_rate_percent": 5.0,
         "upcoming_events": upcoming_events,
         "monthly_registrations": months,
         "category_distribution": category_distribution,

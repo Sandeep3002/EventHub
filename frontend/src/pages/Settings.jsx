@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
-import { Settings as SettingsIcon, User, Bell, Shield, Eye, EyeOff, Save, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { bookingService } from '../services/bookingService';
+import { Settings as SettingsIcon, User, Bell, Shield, Eye, EyeOff, Save, CheckCircle2, AlertCircle, Loader2, Landmark, CreditCard, Wallet } from 'lucide-react';
 
 export default function Settings() {
   const { user, updateUser } = useAuth();
@@ -15,12 +16,41 @@ export default function Settings() {
   const [newPassword, setNewPassword] = useState('');
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [emailNotifs, setEmailNotifs] = useState(true);
-  const [bookingNotifs, setBookingNotifs] = useState(true);
-  const [marketingNotifs, setMarketingNotifs] = useState(false);
+
+  // Organizer Payout State (Razorpay Route)
+  const [payoutBankName, setPayoutBankName] = useState('');
+  const [payoutAccountNum, setPayoutAccountNum] = useState('');
+  const [payoutIfsc, setPayoutIfsc] = useState('');
+  const [payoutBeneficiary, setPayoutBeneficiary] = useState('');
+  const [razorpayAccountId, setRazorpayAccountId] = useState('');
+  const [payoutStatus, setPayoutStatus] = useState('unconfigured');
+
+  const savedPrefs = (() => {
+    try { return JSON.parse(localStorage.getItem('eventhub_notif_prefs')) || {}; }
+    catch { return {}; }
+  })();
+
+  const [emailNotifs, setEmailNotifs] = useState(savedPrefs.emailNotifs ?? true);
+  const [bookingNotifs, setBookingNotifs] = useState(savedPrefs.bookingNotifs ?? true);
+  const [marketingNotifs, setMarketingNotifs] = useState(savedPrefs.marketingNotifs ?? false);
 
   const role = user?.role || 'attendee';
+  const isOrganizerOrAdmin = role === 'organizer' || role === 'admin' || role === 'superadmin';
   const sidebarRole = role === 'superadmin' ? 'superadmin' : (role === 'admin' || role === 'organizer') ? 'admin' : 'customer';
+
+  useEffect(() => {
+    if (isOrganizerOrAdmin) {
+      bookingService.getPayoutSettings().then(s => {
+        if (s) {
+          setPayoutBankName(s.payout_bank_name || '');
+          setPayoutIfsc(s.payout_ifsc || '');
+          setPayoutBeneficiary(s.payout_beneficiary_name || '');
+          setRazorpayAccountId(s.razorpay_account_id || '');
+          setPayoutStatus(s.payout_status || 'unconfigured');
+        }
+      }).catch(() => {});
+    }
+  }, [isOrganizerOrAdmin]);
 
   const handleSave = async (e) => {
     if (e) e.preventDefault();
@@ -47,6 +77,13 @@ export default function Settings() {
           updateUser(updatedUser);
         }
       }
+
+      // Save notification preferences
+      localStorage.setItem('eventhub_notif_prefs', JSON.stringify({
+        emailNotifs,
+        bookingNotifs,
+        marketingNotifs
+      }));
 
       setSaved(true);
       setCurrentPassword('');

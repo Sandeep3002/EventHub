@@ -115,6 +115,7 @@ input, select, textarea {
   align-items: center;
   justify-content: space-between;
   height: 64px;
+  gap: 8px;
 }
 
 .brand-logo {
@@ -204,6 +205,8 @@ input, select, textarea {
 .navbar-search {
   position: relative;
   width: 260px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .navbar-search input {
@@ -533,6 +536,7 @@ input, select, textarea {
   border: 1px solid #E2E8F0;
   border-radius: 10px;
   transition: border-color 0.2s;
+  margin-bottom: 6px;
 }
 .landing-input-field:focus-within {
   border-color: #7C3AED;
@@ -609,9 +613,11 @@ input, select, textarea {
 /* ─── Landing Responsive ─── */
 @media (max-width: 900px) {
   .landing-page { flex-direction: column; }
-  .landing-left { min-height: 400px; }
-  .landing-features { gap: 24px; }
-  .landing-right { padding: 24px; }
+  .landing-left { min-height: 260px; flex: none; }
+  .landing-features { gap: 20px; }
+  .landing-right { padding: 24px 20px; flex: none; }
+  .landing-form-card { max-width: 100%; }
+  .landing-about-btn { top: 12px; right: 12px; padding: 6px 12px; font-size: 0.75rem; }
 }
 
 /* Card Component */
@@ -725,10 +731,12 @@ input, select, textarea {
     position: fixed;
     top: 0;
     left: 0;
+    width: 260px;
     height: 100vh;
     min-height: 100vh;
     transform: translateX(-100%);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    padding-bottom: 16px;
   }
 
   .dashboard-sidebar.sidebar-open {
@@ -737,6 +745,23 @@ input, select, textarea {
 
   .dashboard-content {
     padding: 16px;
+    width: 100%;
+  }
+
+  .top-navbar-inner {
+    padding: 0 12px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .navbar-search {
+    display: none !important;
+  }
+
+  .app-container {
+    padding: 0 12px;
   }
 }
 

@@ -94,10 +94,17 @@ export default function OrganizerDashboard() {
         {/* Stat Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {[
-            { label: 'Total Events', value: loading ? '...' : totalEvents, sub: 'All events', icon: Calendar, iconBg: '#eff6ff', iconColor: '#3b82f6' },
-            { label: 'Total Registrations', value: loading ? '...' : totalRegs, sub: 'All bookings', icon: Users, iconBg: '#f3e8ff', iconColor: '#8b5cf6' },
-            { label: 'Total Revenue', value: loading ? '...' : `₹${totalRevenue.toLocaleString()}`, sub: 'All earnings', icon: Wallet, iconBg: '#ecfdf5', iconColor: '#10b981' },
-            { label: 'Upcoming Events', value: loading ? '...' : upcomingEvents, sub: 'Scheduled', icon: TrendingUp, iconBg: '#fff7ed', iconColor: '#f59e0b' },
+            { label: 'Total Events', value: loading ? '...' : totalEvents, sub: 'All hosted events', icon: Calendar, iconBg: '#eff6ff', iconColor: '#3b82f6' },
+            { label: 'Registrations', value: loading ? '...' : totalRegs, sub: 'Total tickets booked', icon: Users, iconBg: '#f3e8ff', iconColor: '#8b5cf6' },
+            { label: 'Gross Ticket Sales', value: loading ? '...' : `₹${totalRevenue.toLocaleString()}`, sub: '100% ticket volume', icon: Wallet, iconBg: '#ecfdf5', iconColor: '#10b981' },
+            { 
+              label: 'Net Organizer Payout', 
+              value: loading ? '...' : `₹${(data?.net_earnings ?? Math.round(totalRevenue * 0.95)).toLocaleString()}`, 
+              sub: `95% share (-5% platform fee: ₹${(data?.platform_commission ?? Math.round(totalRevenue * 0.05)).toLocaleString()})`, 
+              icon: TrendingUp, 
+              iconBg: '#fff7ed', 
+              iconColor: '#f59e0b' 
+            },
           ].map((s, i) => (
             <div key={i} style={{
               background: 'white', borderRadius: '14px', padding: '22px 20px',
@@ -287,20 +294,22 @@ export default function OrganizerDashboard() {
                         </td>
                         <td style={{ padding: '14px 12px' }}>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            <button title="View" style={{
+                            <Link to="/admin/manage-events" title="View Event in Manage Events" style={{
                               width: '32px', height: '32px', borderRadius: '8px',
                               border: '1px solid #e2e8f0', background: 'white',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                              textDecoration: 'none',
                             }}>
                               <Eye style={{ width: '14px', height: '14px', color: '#64748b' }} />
-                            </button>
-                            <button title="Edit" style={{
+                            </Link>
+                            <Link to={`/admin/create-event?edit=${id}`} title="Edit Event" style={{
                               width: '32px', height: '32px', borderRadius: '8px',
                               border: '1px solid #e2e8f0', background: 'white',
                               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                              textDecoration: 'none',
                             }}>
                               <Edit3 style={{ width: '14px', height: '14px', color: '#64748b' }} />
-                            </button>
+                            </Link>
                             <button title="Delete" onClick={() => handleDelete(id)} style={{
                               width: '32px', height: '32px', borderRadius: '8px',
                               border: '1px solid #fee2e2', background: '#fff5f5',

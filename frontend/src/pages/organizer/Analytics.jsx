@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { eventService } from '../../services/eventService';
+import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
 import { BarChart2, TrendingUp, DollarSign, Users, Calendar, Ticket } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 
 export default function Analytics() {
+  const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     eventService.getEvents().then(evts => {
-      setEvents(evts);
+      let list = Array.isArray(evts) ? evts : [];
+      if (user?.role === 'organizer') {
+        list = list.filter(e => e.organizer_id === user.id);
+      }
+      setEvents(list);
       setLoading(false);
     });
-  }, []);
+  }, [user]);
 
   const totalRevenue = events.reduce((s, e) => s + (e.price * ((e.capacity || 0) - (e.available_tickets || 0))), 0);
+  const platformFee = Math.round(totalRevenue * 0.05);
+  const netPayout = totalRevenue - platformFee;
   const totalSold = events.reduce((s, e) => s + ((e.capacity || 0) - (e.available_tickets || 0)), 0);
   const totalCapacity = events.reduce((s, e) => s + (e.capacity || 0), 0);
   const avgPrice = events.length > 0 ? (events.reduce((s, e) => s + e.price, 0) / events.length).toFixed(0) : 0;
@@ -38,7 +46,7 @@ export default function Analytics() {
           </div>
           <div>
             <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0 }}>Analytics & Revenue</h1>
-            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Real-time performance insights for your hosted events</p>
+            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Real-time earnings, 5% platform split, and net settlements</p>
           </div>
         </div>
       </div>
@@ -46,10 +54,10 @@ export default function Analytics() {
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
         {[
-          { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#059669', bg: '#ecfdf5' },
+          { label: 'Gross Sales (100%)', value: `₹${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#059669', bg: '#ecfdf5' },
+          { label: 'Net Payout (95%)', value: `₹${netPayout.toLocaleString()}`, icon: TrendingUp, color: '#2563eb', bg: '#eff6ff' },
+          { label: 'Platform Fee (5%)', value: `₹${platformFee.toLocaleString()}`, icon: DollarSign, color: '#d97706', bg: '#fffbeb' },
           { label: 'Tickets Sold', value: totalSold.toLocaleString(), icon: Ticket, color: '#6366f1', bg: '#eef2ff' },
-          { label: 'Total Capacity', value: totalCapacity.toLocaleString(), icon: Users, color: '#7c3aed', bg: '#f5f3ff' },
-          { label: 'Avg Ticket Price', value: `$${avgPrice}`, icon: TrendingUp, color: '#d97706', bg: '#fffbeb' },
         ].map((s, i) => (
           <div key={i} style={{
             background: '#fff', borderRadius: 14, padding: '22px 24px',
@@ -111,7 +119,7 @@ export default function Analytics() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#059669' }}>${revenue.toLocaleString()}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#059669' }}>₹{revenue.toLocaleString()}</div>
                   <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{sold} sold</div>
                 </div>
               </div>

@@ -7,6 +7,8 @@ from app.schemas.registration import RegistrationCreate
 from app.models.registration import RegistrationStatus
 from app.utils.email import send_booking_details_email, send_custom_email
 
+from app.config.settings import settings
+
 class RegistrationService:
     @staticmethod
     async def create_registration(reg_in: RegistrationCreate, user_id: str) -> dict:
@@ -23,6 +25,14 @@ class RegistrationService:
 
         qr_token = f"EVTHUB-{uuid4().hex[:8].upper()}"
         total_amount = ticket_price * reg_in.quantity
+        final_amount = reg_in.total_amount if reg_in.total_amount else total_amount
+
+        # EventHub 5% Marketplace Commission calculation
+        commission_rate = getattr(settings, "PLATFORM_COMMISSION_PERCENT", 5.0)
+        platform_commission = round(float(final_amount) * (commission_rate / 100.0), 2)
+        organizer_share = round(float(final_amount) - platform_commission, 2)
+        organizer_id = event.get("organizer_id", "")
+        transfer_id = f"trf_sim_{uuid4().hex[:10]}"
 
         reg_dict = {
             "_id": str(uuid4()),
@@ -30,7 +40,13 @@ class RegistrationService:
             "user_id": user_id,
             "ticket_id": reg_in.ticket_id,
             "quantity": reg_in.quantity,
-            "total_amount": reg_in.total_amount if reg_in.total_amount else total_amount,
+            "total_amount": final_amount,
+            "platform_commission": platform_commission,
+            "organizer_share": organizer_share,
+            "organizer_id": organizer_id,
+            "commission_rate": commission_rate,
+            "transfer_id": transfer_id,
+            "transfer_status": "settled",
             "status": RegistrationStatus.CONFIRMED,
             "qr_code_token": qr_token,
             "attendee_name": reg_in.attendee_name or "",
@@ -43,6 +59,25 @@ class RegistrationService:
         }
 
         await db.registrations.insert_one(reg_dict)
+
+        # Record payment transaction
+        payment_dict = {
+            "_id": str(uuid4()),
+            "registration_id": reg_dict["_id"],
+            "user_id": user_id,
+            "amount": final_amount,
+            "currency": "INR",
+            "payment_method": reg_in.payment_method or "credit_card",
+            "transaction_id": f"TXN-{uuid4().hex[:10].upper()}",
+            "status": "completed",
+            "platform_commission": platform_commission,
+            "organizer_share": organizer_share,
+            "organizer_id": organizer_id,
+            "transfer_id": transfer_id,
+            "transfer_status": "settled",
+            "created_at": datetime.utcnow(),
+        }
+        await db.payments.insert_one(payment_dict)
         # Deduct ticket quantity
         await db.events.update_one(
             {"_id": reg_in.event_id},
@@ -95,8 +130,40 @@ class RegistrationService:
         return registrations
 
     @staticmethod
-    async def delete_registration(registration_id: str) -> dict:
+    async def cancel_registration(registration_id: str, user_id: str) -> dict:
         db = get_database()
+        reg = await db.registrations.find_one({"_id": registration_id})
+        if not reg:
+            raise HTTPException(status_code=404, detail="Registration not found")
+        if reg["user_id"] != user_id:
+            # Allow admins too — caller checks are in route layer
+            user = await db.users.find_one({"_id": user_id})
+            if not user or user.get("role") not in ("admin", "organizer", "superadmin"):
+                raise HTTPException(status_code=403, detail="Not allowed to cancel this registration")
+        if reg.get("status") == "cancelled":
+            raise HTTPException(status_code=400, detail="Registration already cancelled")
+        await db.registrations.update_one(
+            {"_id": registration_id},
+            {"$set": {"status": "cancelled", "updated_at": datetime.utcnow()}}
+        )
+        # Restore seats
+        await db.events.update_one(
+            {"_id": reg["event_id"]},
+            {"$inc": {"available_tickets": reg.get("quantity", 1)}}
+        )
+        return {"message": "Registration cancelled and seats restored"}
+
+    @staticmethod
+    async def delete_registration(registration_id: str, current_user: dict = None) -> dict:
+        db = get_database()
+        reg = await db.registrations.find_one({"_id": registration_id})
+        if not reg:
+            raise HTTPException(status_code=404, detail="Registration not found")
+        if current_user:
+            is_owner = reg.get("user_id") == current_user.get("id") or reg.get("user_id") == current_user.get("_id")
+            is_admin = current_user.get("role") in ("admin", "organizer", "superadmin")
+            if not is_owner and not is_admin:
+                raise HTTPException(status_code=403, detail="Not authorized to delete this registration")
         result = await db.registrations.delete_one({"_id": registration_id})
         if result.deleted_count == 0:
             raise HTTPException(status_code=404, detail="Registration not found")

@@ -9,7 +9,6 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # Python
-backend/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -25,6 +24,7 @@ htmlcov/
 .pytest_cache/
 
 # IDE
+.snowflake/
 .vscode/
 .idea/
 *.suo

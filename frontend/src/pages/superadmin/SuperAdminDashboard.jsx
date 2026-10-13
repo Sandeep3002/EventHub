@@ -1,40 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { request } from '../../services/api';
 import {
-  ShieldCheck, Users, Calendar, Activity, DollarSign,
-  UserPlus, Trash2, Edit3, PlusCircle, CheckCircle2, XCircle, FileText,
+  ShieldCheck, Users, Calendar, DollarSign, CreditCard,
 } from 'lucide-react';
-
-const ACTION_ICONS = {
-  created_event: { icon: PlusCircle, color: '#3b82f6', bg: '#eff6ff' },
-  updated_event: { icon: Edit3, color: '#f59e0b', bg: '#fffbeb' },
-  deleted_event: { icon: Trash2, color: '#ef4444', bg: '#fef2f2' },
-  published_event: { icon: CheckCircle2, color: '#10b981', bg: '#ecfdf5' },
-  unpublished_event: { icon: XCircle, color: '#64748b', bg: '#f8fafc' },
-  new_registration: { icon: UserPlus, color: '#8b5cf6', bg: '#f5f3ff' },
-  deleted_registration: { icon: Trash2, color: '#ef4444', bg: '#fef2f2' },
-  created_category: { icon: PlusCircle, color: '#06b6d4', bg: '#ecfeff' },
-  deleted_category: { icon: Trash2, color: '#ef4444', bg: '#fef2f2' },
-  created_venue: { icon: PlusCircle, color: '#14b8a6', bg: '#f0fdfa' },
-  user_login: { icon: Users, color: '#6366f1', bg: '#eef2ff' },
-  user_registered: { icon: UserPlus, color: '#10b981', bg: '#ecfdf5' },
-};
-
-const formatAction = (action) => action.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-
-const timeAgo = (ts) => {
-  const diff = Date.now() - new Date(ts).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
-};
 
 export default function SuperAdminDashboard() {
   const { user } = useAuth();
@@ -56,14 +26,27 @@ export default function SuperAdminDashboard() {
   }, []);
 
   const firstName = user?.full_name?.split(' ')[0] || 'Super Admin';
-  const activities = data?.recent_activities || [];
   const adminUsers = data?.admin_users || [];
 
   const stats = [
     { label: 'Total Admins', value: loading ? '...' : data?.total_admins ?? 0, sub: `${data?.total_customers ?? 0} customers`, icon: Users, iconBg: '#eff6ff', iconColor: '#3b82f6' },
-    { label: 'Total Events', value: loading ? '...' : data?.total_events ?? 0, sub: 'Across all admins', icon: Calendar, iconBg: '#f5f3ff', iconColor: '#8b5cf6' },
-    { label: 'Registrations', value: loading ? '...' : data?.total_registrations ?? 0, sub: 'All bookings', icon: FileText, iconBg: '#ecfdf5', iconColor: '#10b981' },
-    { label: 'Total Revenue', value: loading ? '...' : `₹${(data?.total_revenue ?? 0).toLocaleString()}`, sub: 'Platform-wide', icon: DollarSign, iconBg: '#fff7ed', iconColor: '#f59e0b' },
+    { label: 'Total Events', value: loading ? '...' : data?.total_events ?? 0, sub: 'Across all organizers', icon: Calendar, iconBg: '#f5f3ff', iconColor: '#8b5cf6' },
+    { 
+      label: 'EventHub Commission (5%)', 
+      value: loading ? '...' : `₹${(data?.total_platform_commission ?? Math.round((data?.total_revenue ?? 0) * 0.05)).toLocaleString()}`, 
+      sub: 'Platform net earnings', 
+      icon: DollarSign, 
+      iconBg: '#ecfdf5', 
+      iconColor: '#10b981' 
+    },
+    { 
+      label: 'Gross Ticket Volume', 
+      value: loading ? '...' : `₹${(data?.total_revenue ?? 0).toLocaleString()}`, 
+      sub: `Organizers (95%): ₹${(data?.total_organizer_payouts ?? Math.round((data?.total_revenue ?? 0) * 0.95)).toLocaleString()}`, 
+      icon: DollarSign, 
+      iconBg: '#fff7ed', 
+      iconColor: '#f59e0b' 
+    },
   ];
 
   return (
@@ -85,14 +68,6 @@ export default function SuperAdminDashboard() {
               Welcome back, {firstName}! Monitor all admin activities and manage the platform.
             </p>
           </div>
-          <Link to="/superadmin/activities" style={{
-            background: 'white', color: '#4f46e5', fontWeight: 600, fontSize: '14px',
-            padding: '10px 20px', borderRadius: '10px', display: 'flex', alignItems: 'center',
-            gap: '6px', textDecoration: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-          }}>
-            <Activity style={{ width: '16px', height: '16px' }} />
-            Activity Log
-          </Link>
         </div>
 
         {/* Stats */}
@@ -118,110 +93,117 @@ export default function SuperAdminDashboard() {
           ))}
         </div>
 
-        {/* Live Activity Feed + Admin List */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Activity Feed */}
-          <div className="lg:col-span-2" style={{
-            background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
-            padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Activity style={{ width: '18px', height: '18px', color: '#7c3aed' }} />
-                Live Activity Feed
-              </h2>
-              <Link to="/superadmin/activities" style={{ fontSize: '13px', fontWeight: 600, color: '#7c3aed', textDecoration: 'none' }}>View All →</Link>
-            </div>
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
-                <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: '12px' }}>Loading activities...</p>
-              </div>
-            ) : activities.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8', fontSize: '14px' }}>No activities recorded yet.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '420px', overflowY: 'auto' }}>
-                {activities.map(a => {
-                  const cfg = ACTION_ICONS[a.action] || { icon: Activity, color: '#64748b', bg: '#f8fafc' };
-                  const Icon = cfg.icon;
-                  return (
-                    <div key={a.id} style={{
-                      display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '12px',
-                      borderRadius: '10px', background: '#fafbfc', transition: 'background 0.15s',
-                    }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                      onMouseLeave={e => e.currentTarget.style.background = '#fafbfc'}
-                    >
-                      <div style={{
-                        width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      }}>
-                        <Icon style={{ width: '16px', height: '16px', color: cfg.color }} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: '13px', color: '#0f172a', margin: 0 }}>
-                          <strong>{a.actor_name}</strong>{' '}
-                          <span style={{ color: '#64748b' }}>{formatAction(a.action).toLowerCase()}</span>{' '}
-                          <strong style={{ color: cfg.color }}>{a.target_name}</strong>
-                        </p>
-                        {a.details && <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>{a.details}</p>}
-                      </div>
-                      <span style={{ fontSize: '11px', color: '#94a3b8', flexShrink: 0, marginTop: '2px' }}>
-                        {timeAgo(a.timestamp)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+        {/* Organizer Bank Details */}
+        <div id="bank-details" style={{
+          background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
+          padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CreditCard style={{ width: '20px', height: '20px', color: '#7c3aed' }} />
+              Organizer Bank Details (Payout Accounts)
+            </h2>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>
+              {adminUsers.filter(u => u.payout_status === 'active').length} configured
+            </span>
           </div>
 
-          {/* Admin Users */}
-          <div style={{
-            background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
-            padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-          }}>
-            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-              Admin Users
-            </h2>
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '32px 0' }}>
-                <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {adminUsers.map(u => (
-                  <div key={u.id} style={{
-                    display: 'flex', alignItems: 'center', gap: '12px', padding: '10px',
-                    borderRadius: '10px', background: '#fafbfc',
-                  }}>
-                    <div style={{
-                      width: '36px', height: '36px', borderRadius: '50%', background: '#4f46e5',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-                      fontWeight: 700, fontSize: '14px', flexShrink: 0,
-                    }}>
-                      {(u.full_name || 'A')[0].toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name}</p>
-                      <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{u.email}</p>
-                      {u.phone && <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0' }}>{u.phone}</p>}
-                    </div>
-                    <span style={{
-                      padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
-                      background: u.is_active ? '#ecfdf5' : '#fef2f2', color: u.is_active ? '#10b981' : '#ef4444',
-                    }}>
-                      {u.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                ))}
-                {adminUsers.length === 0 && (
-                  <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>No admin users yet.</p>
-                )}
-              </div>
-            )}
-          </div>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+            </div>
+          ) : adminUsers.length === 0 ? (
+            <p style={{ textAlign: 'center', padding: '24px 0', color: '#94a3b8', fontSize: '14px' }}>No organizers registered yet.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #f1f5f9', background: '#f8fafc' }}>
+                    {['Organizer Name', 'Email', 'Bank Name', 'Account Number', 'IFSC Code', 'Beneficiary Name', 'Payout Status'].map(h => (
+                      <th key={h} style={{ padding: '12px 14px', textAlign: 'left', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminUsers.map(u => {
+                    const configured = u.payout_status === 'active';
+                    return (
+                      <tr key={u.id} style={{ borderBottom: '1px solid #f1f5f9' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#fafbfc'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <td style={{ padding: '12px 14px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>{u.full_name}</td>
+                        <td style={{ padding: '12px 14px', color: '#64748b' }}>{u.email}</td>
+                        <td style={{ padding: '12px 14px', color: '#0f172a', fontWeight: 500 }}>{u.payout_bank_name || '—'}</td>
+                        <td style={{ padding: '12px 14px', color: '#0f172a', fontFamily: 'monospace', fontWeight: 600 }}>{u.payout_account_number_masked || '—'}</td>
+                        <td style={{ padding: '12px 14px', color: '#0f172a', fontFamily: 'monospace' }}>{u.payout_ifsc || '—'}</td>
+                        <td style={{ padding: '12px 14px', color: '#0f172a' }}>{u.payout_beneficiary_name || '—'}</td>
+                        <td style={{ padding: '12px 14px' }}>
+                          <span style={{
+                            padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
+                            background: configured ? '#ecfdf5' : '#f8fafc',
+                            color: configured ? '#10b981' : '#94a3b8',
+                            border: configured ? '1px solid #a7f3d0' : '1px solid #e2e8f0'
+                          }}>
+                            {configured ? 'Active' : 'Not Configured'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
+
+        {/* Admin Users */}
+        <div style={{
+          background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
+          padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Users style={{ width: '20px', height: '20px', color: '#4f46e5' }} />
+            Admin / Organizer Users ({adminUsers.length})
+          </h2>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+              <div style={{ width: '32px', height: '32px', border: '3px solid #e2e8f0', borderTopColor: '#4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {adminUsers.map(u => (
+                <div key={u.id} style={{
+                  display: 'flex', alignItems: 'center', gap: '12px', padding: '12px',
+                  borderRadius: '10px', background: '#fafbfc', border: '1px solid #f1f5f9'
+                }}>
+                  <div style={{
+                    width: '38px', height: '38px', borderRadius: '50%', background: '#4f46e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    fontWeight: 700, fontSize: '14px', flexShrink: 0,
+                  }}>
+                    {(u.full_name || 'A')[0].toUpperCase()}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.full_name}</p>
+                    <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email}</p>
+                    {u.phone && <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0' }}>{u.phone}</p>}
+                  </div>
+                  <span style={{
+                    padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
+                    background: u.is_active ? '#ecfdf5' : '#fef2f2', color: u.is_active ? '#10b981' : '#ef4444',
+                  }}>
+                    {u.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              ))}
+              {adminUsers.length === 0 && (
+                <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '16px 0', gridColumn: '1 / -1' }}>No admin users yet.</p>
+              )}
+            </div>
+          )}
+        </div>
+
       </main>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
