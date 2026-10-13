@@ -188,25 +188,21 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* User Profile Dropdown Pill */}
-          {user ? (
+          {/* User Profile Dropdown Pill - only on public pages, sidebar handles dashboard */}
+          {!isDashboardPage && (user ? (
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className={isDashboardPage ? 'navbar-user-btn-light' : 'navbar-user-btn'}
+                className="navbar-user-btn"
                 aria-label="User menu"
               >
-                <div className={`w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center shrink-0 shadow-sm ${
-                  isDashboardPage ? 'bg-blue-600 text-white' : 'bg-white/20 text-white'
-                }`}>
+                <div className="w-8 h-8 rounded-full font-bold text-sm flex items-center justify-center shrink-0 shadow-sm bg-white/20 text-white">
                   {user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <span className={`text-sm font-semibold max-w-[100px] sm:max-w-[150px] truncate ${
-                  isDashboardPage ? 'text-slate-800' : 'text-white'
-                }`}>
+                <span className="text-sm font-semibold max-w-[100px] sm:max-w-[150px] truncate text-white">
                   {user.full_name ? user.full_name.split(' ')[0] : 'User'}
                 </span>
-                <ChevronDown className={`w-4 h-4 shrink-0 ${isDashboardPage ? 'text-slate-500' : 'opacity-70'}`} />
+                <ChevronDown className="w-4 h-4 shrink-0 opacity-70" />
               </button>
 
               {dropdownOpen && (
@@ -255,7 +251,7 @@ export default function Navbar() {
               <Link to="/login" className="navbar-login-btn">Login</Link>
               <Link to="/register" className="navbar-register-btn hidden sm:inline-block">Register</Link>
             </div>
-          )}
+          ))}
         </div>
 
       </div>
