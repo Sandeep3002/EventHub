@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from app.schemas.user import UserCreate, UserLogin, Token, UserResponse
 from app.services.auth_service import AuthService
@@ -32,13 +32,15 @@ async def get_current_user(token: Optional[str] = Depends(oauth2_scheme)) -> dic
     return user
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def register(user_in: UserCreate):
+async def register(user_in: UserCreate, background_tasks: BackgroundTasks):
     result = await AuthService.register_user(user_in)
-    # Send welcome email in background (don't block registration)
-    try:
-        await send_welcome_email(user_in.email, user_in.full_name, user_in.role or "attendee")
-    except Exception:
-        pass
+    # Send thank you & welcome email in background
+    background_tasks.add_task(
+        send_welcome_email,
+        email_to=user_in.email,
+        user_name=user_in.full_name,
+        role=user_in.role or "attendee",
+    )
     return result
 
 @router.post("/login", response_model=Token)

@@ -210,31 +210,41 @@ async def send_password_reset_email(email_to: str, user_name: str, reset_token: 
 
 
 async def send_welcome_email(email_to: str, user_name: str, role: str = "attendee") -> bool:
-    subject = "Welcome to EventHub!"
-    role_msg = "discover amazing events and book tickets" if role == "attendee" else "create and manage events"
+    subject = "🎉 Thank You for Registering with EventHub!"
+    role_msg = "discover unforgettable events and reserve tickets easily" if role == "attendee" else "create, manage, and host incredible events"
     html = f"""
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 32px 28px; text-align: center; border-radius: 12px 12px 0 0;">
-        <h1 style="color: white; margin: 0; font-size: 22px;">Welcome to EventHub!</h1>
-        <p style="color: #bfdbfe; margin: 6px 0 0; font-size: 13px;">Your account has been created successfully</p>
+      <div style="background: linear-gradient(135deg, #6366f1, #4f46e5); padding: 36px 28px; text-align: center; border-radius: 12px 12px 0 0;">
+        <div style="font-size: 38px; margin-bottom: 8px;">🎉</div>
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 800;">Thank You for Registering!</h1>
+        <p style="color: #e0e7ff; margin: 8px 0 0; font-size: 14px;">Welcome to EventHub, {user_name}! Your account is ready.</p>
       </div>
-      <div style="background: white; padding: 28px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
-        <p style="color: #334155; font-size: 15px; margin: 0 0 20px;">Hi <strong>{user_name}</strong>,</p>
-        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">Thank you for joining EventHub! You can now {role_msg}.</p>
-        <div style="background: #f1f5f9; border-radius: 10px; padding: 18px; margin: 0 0 20px;">
-          <p style="margin: 0 0 10px; font-size: 13px; color: #334155; font-weight: 600;">Here's what you can do:</p>
+      <div style="background: white; padding: 32px 28px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+        <p style="color: #1e293b; font-size: 16px; margin: 0 0 18px;">Hi <strong>{user_name}</strong>,</p>
+        <p style="color: #475569; font-size: 14px; line-height: 1.7; margin: 0 0 20px;">
+          Thank you for registering with <strong>EventHub</strong>! We're thrilled to have you onboard. You can now log in to {role_msg}.
+        </p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 8px; padding: 18px; margin: 0 0 24px;">
+          <p style="margin: 0 0 10px; font-size: 13px; color: #1e293b; font-weight: 700;">Here's what you can explore next:</p>
           <ul style="margin: 0; padding: 0 0 0 20px; color: #475569; font-size: 13px; line-height: 1.8;">
-            <li>Browse and discover events</li>
-            <li>Book tickets with digital passes</li>
-            <li>Track your bookings and payments</li>
-            <li>Get personalized event recommendations</li>
+            <li>Explore curated concerts, tech conferences, workshops, and meetups</li>
+            <li>Instant digital ticket reservations with verifiable QR passes</li>
+            <li>Real-time booking management and instant calendar updates</li>
+            <li>Seamless organizer management and ticket sales analytics</li>
           </ul>
         </div>
-        <div style="text-align: center;">
-          <a href="http://localhost:5173" style="display: inline-block; background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; text-decoration: none; padding: 12px 32px; border-radius: 10px; font-weight: 700; font-size: 14px;">Get Started</a>
+        <div style="text-align: center; margin: 28px 0 12px;">
+          <a href="http://localhost:5173" style="display: inline-block; background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; text-decoration: none; padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 12px rgba(99,102,241,0.3);">
+            Log In to EventHub &rarr;
+          </a>
         </div>
+        <p style="color: #94a3b8; font-size: 12px; margin: 24px 0 0; text-align: center;">
+          If you have any questions or need help getting started, our support team is always here for you.
+        </p>
       </div>
-      <div style="text-align: center; padding: 16px; color: #94a3b8; font-size: 11px;">EventHub - Event Management Platform</div>
+      <div style="text-align: center; padding: 18px; color: #94a3b8; font-size: 11px;">
+        &copy; 2026 EventHub &bull; Modern Event Management Platform
+      </div>
     </div>
     """
     return await _send_email(email_to, subject, html)

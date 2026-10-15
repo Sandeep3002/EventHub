@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
 import {
-  Mail, Lock, Eye, EyeOff, User, Users, Info
+  Mail, Lock, Eye, EyeOff, User, Users, Info, CheckCircle2, ArrowRight, X, Sparkles
 } from 'lucide-react';
 
 export default function Home() {
@@ -26,6 +26,10 @@ export default function Home() {
   const [regConfirm, setRegConfirm] = useState('');
   const [regRole, setRegRole] = useState('attendee');
   const [showRegPassword, setShowRegPassword] = useState(false);
+
+  // Success Modal State
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState({ name: '', email: '' });
 
   // If already logged in, redirect to dashboard
   React.useEffect(() => {
@@ -63,8 +67,33 @@ export default function Home() {
     }
     setLoading(true);
     try {
-      await register(regName, regEmail, regPassword, regRole, true);
-      navigate('/');
+      await register(regName, regEmail, regPassword, regRole);
+
+      // Trigger Confetti Celebration
+      try {
+        const confetti = (await import('canvas-confetti')).default;
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#6366F1', '#8B5CF6', '#10B981', '#F59E0B']
+        });
+      } catch {
+        /* fallback gracefully if confetti is blocked */
+      }
+
+      // Populate success popup state
+      const registeredName = regName;
+      const registeredEmail = regEmail;
+      setRegisteredUser({ name: registeredName, email: registeredEmail });
+      setEmail(registeredEmail);
+      setShowSuccessModal(true);
+
+      // Clear register inputs
+      setRegName('');
+      setRegEmail('');
+      setRegPassword('');
+      setRegConfirm('');
     } catch (err) {
       setError(err.message || 'Registration failed.');
     } finally {
@@ -72,18 +101,13 @@ export default function Home() {
     }
   };
 
-  const handleQuickFill = (role) => {
-    if (role === 'superadmin') {
-      setEmail('superadmin@eventhub.com');
-      setPassword('demo1234');
-    } else if (role === 'admin') {
-      setEmail('admin@eventhub.com');
-      setPassword('demo1234');
-    } else {
-      setEmail('john@example.com');
-      setPassword('demo1234');
-    }
+  const handleProceedToSignIn = () => {
+    setShowSuccessModal(false);
+    setActiveTab('signin');
+    setForgotMsg('🎉 Registration successful! Please sign in with your credentials.');
   };
+
+
 
   return (
     <div className="landing-page">
@@ -249,6 +273,67 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* ─── REGISTRATION SUCCESS POPUP MODAL ─── */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border border-slate-100 relative animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={handleProceedToSignIn}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Celebratory Icon */}
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 mb-4">
+              <CheckCircle2 className="w-9 h-9" />
+            </div>
+
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-2">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Registration Successful!</span>
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-900">
+              Welcome, {registeredUser.name || 'there'}!
+            </h3>
+
+            <p className="text-xs text-slate-500 mt-1 mb-5">
+              Your EventHub account has been created successfully.
+            </p>
+
+            {/* Email notification card */}
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left space-y-2 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800">
+                    Thank-you Email Dispatched!
+                  </h4>
+                  <p className="text-[11px] text-slate-600 leading-relaxed mt-0.5">
+                    We sent a thank you and welcome email to{' '}
+                    <strong className="text-indigo-600 break-all">{registeredUser.email}</strong>.
+                    Check your inbox (or spam) for helpful tips to get started.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Proceed to Sign In button */}
+            <button
+              onClick={handleProceedToSignIn}
+              className="w-full py-3 px-4 rounded-xl text-white font-semibold text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Proceed to Sign In</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

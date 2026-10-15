@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { eventService } from '../../services/eventService';
 import { favoriteService } from '../../services/favoriteService';
@@ -7,14 +8,16 @@ import CheckoutModal from '../../components/CheckoutModal';
 import RegistrationFormModal from '../../components/RegistrationFormModal';
 import {
   Calendar, Search, MapPin, Clock, ArrowLeft, Users, Heart,
-  DollarSign, Tag, ChevronRight, Ticket, Star, Zap, X
+  Tag, ChevronRight, Ticket, Star, Zap, X
 } from 'lucide-react';
+import { cardStyle } from '../../styles/pageStyles';
 
 export default function BrowseEvents() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showRegistration, setShowRegistration] = useState(false);
   const [registrationData, setRegistrationData] = useState(null);
@@ -73,12 +76,11 @@ export default function BrowseEvents() {
     setShowCheckout(true);
   };
 
-  const activeEvent = selectedEvent;
-
   return (
     <div className="dashboard-layout">
       <Sidebar role="customer" />
       <main className="dashboard-content space-y-6">
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
 
         {/* If an event is selected, show detail view */}
         {selectedEvent ? (
@@ -86,13 +88,14 @@ export default function BrowseEvents() {
             {/* Back button */}
             <button
               onClick={() => { setSelectedEvent(null); setShowRegistration(false); setShowCheckout(false); setRegistrationData(null); }}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-800 transition"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-400 transition"
+              style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0 }}
             >
               <ArrowLeft className="w-4 h-4" /> Back to Events
             </button>
 
             {/* Event Hero */}
-            <div style={{ borderRadius: '20px', overflow: 'hidden', background: 'white', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div style={{ ...cardStyle, borderRadius: '20px', overflow: 'hidden' }}>
               {/* Banner */}
               <div style={{
                 height: '200px',
@@ -103,7 +106,7 @@ export default function BrowseEvents() {
               }}>
                 <div style={{
                   position: 'absolute', inset: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%)',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)',
                 }} />
                 <div style={{ position: 'absolute', bottom: '20px', left: '24px', right: '24px' }}>
                   <div className="flex items-center gap-2 mb-2">
@@ -116,7 +119,7 @@ export default function BrowseEvents() {
                       <Zap className="w-3 h-3 inline mr-1" />Open
                     </span>
                   </div>
-                  <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
+                  <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.3)', margin: 0 }}>
                     {selectedEvent.title}
                   </h1>
                 </div>
@@ -139,39 +142,39 @@ export default function BrowseEvents() {
               </div>
 
               {/* Info Grid */}
-              <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
+              <div style={{ padding: '24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
                 {/* Left: Details */}
                 <div className="space-y-5">
                   {/* Quick Info Pills */}
                   <div className="flex flex-wrap gap-3">
-                    <div className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6', padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 500 }}>
                       <Calendar className="w-4 h-4" /> {formatDate(selectedEvent.start_time)}
                     </div>
-                    <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6', padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 500 }}>
                       <Clock className="w-4 h-4" /> {formatTime(selectedEvent.start_time)} - {formatTime(selectedEvent.end_time)}
                     </div>
-                    <div className="inline-flex items-center gap-2 bg-pink-50 text-pink-700 px-4 py-2 rounded-xl text-sm font-medium">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(236, 72, 153, 0.12)', color: '#ec4899', padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 500 }}>
                       <MapPin className="w-4 h-4" /> {selectedEvent.venue_id || 'TBD'}
                     </div>
                   </div>
 
                   {/* About */}
                   <div>
-                    <h3 className="text-base font-bold text-slate-900 mb-2">About This Event</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text-main)', marginBottom: 8 }}>About This Event</h3>
+                    <p style={{ fontSize: 14, color: 'var(--c-text-muted)', lineHeight: 1.6, margin: 0 }}>
                       {selectedEvent.description || 'Join us for an amazing event experience. More details coming soon!'}
                     </p>
                   </div>
 
                   {/* Highlights */}
-                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-5 rounded-2xl">
-                    <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-                      <Star className="w-4 h-4 text-purple-600" /> Event Highlights
+                  <div style={{ background: 'var(--c-bg)', border: '1px solid var(--c-border)', padding: 20, borderRadius: 16 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text-main)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <Star className="w-4 h-4 text-purple-500" /> Event Highlights
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       {['Expert Speakers', 'Networking', 'Hands-on Sessions', 'Certificate'].map((h, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-slate-700">
-                          <div className="w-2 h-2 rounded-full bg-purple-500" /> {h}
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--c-text-muted)' }}>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#8b5cf6' }} /> {h}
                         </div>
                       ))}
                     </div>
@@ -180,12 +183,12 @@ export default function BrowseEvents() {
 
                 {/* Right: Booking Card */}
                 <div style={{
-                  background: 'linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%)',
-                  borderRadius: '16px', border: '1px solid #e9d5ff', padding: '24px',
+                  background: 'var(--c-bg)',
+                  borderRadius: '16px', border: '1px solid var(--c-border)', padding: '24px',
                   height: 'fit-content', position: 'sticky', top: '24px',
                 }}>
                   <div className="text-center mb-5">
-                    <div className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Ticket Price</div>
+                    <div style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Ticket Price</div>
                     <div style={{ fontSize: '36px', fontWeight: 800, background: 'linear-gradient(135deg, #7C3AED, #EC4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                       ₹{selectedEvent.price || 0}
                     </div>
@@ -193,16 +196,16 @@ export default function BrowseEvents() {
 
                   <div className="space-y-3 mb-5">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Available</span>
-                      <span className="font-bold text-slate-900">{selectedEvent.available_tickets ?? selectedEvent.max_attendees ?? 'Unlimited'} seats</span>
+                      <span style={{ color: 'var(--c-text-muted)' }}>Available</span>
+                      <span style={{ fontWeight: 700, color: 'var(--c-text-main)' }}>{selectedEvent.available_tickets ?? selectedEvent.max_attendees ?? 'Unlimited'} seats</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Capacity</span>
-                      <span className="font-bold text-slate-900">{selectedEvent.max_attendees || 200}</span>
+                      <span style={{ color: 'var(--c-text-muted)' }}>Capacity</span>
+                      <span style={{ fontWeight: 700, color: 'var(--c-text-main)' }}>{selectedEvent.max_attendees || 200}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Type</span>
-                      <span className="font-bold text-slate-900">General Entry</span>
+                      <span style={{ color: 'var(--c-text-muted)' }}>Type</span>
+                      <span style={{ fontWeight: 700, color: 'var(--c-text-main)' }}>General Entry</span>
                     </div>
                   </div>
 
@@ -223,7 +226,7 @@ export default function BrowseEvents() {
                     Register Now
                   </button>
 
-                  <p className="text-[10px] text-slate-400 text-center mt-3">Secure checkout · Instant confirmation</p>
+                  <p style={{ fontSize: 10, color: 'var(--c-text-muted)', textAlign: 'center', marginTop: 12 }}>Secure checkout · Instant confirmation</p>
                 </div>
               </div>
             </div>
@@ -231,28 +234,28 @@ export default function BrowseEvents() {
         ) : (
           /* Events Grid View */
           <>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">Browse Events</h1>
-                <p className="text-xs text-slate-500 mt-1">Discover and register for upcoming events</p>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>Browse Events</h1>
+                <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>Discover and register for upcoming events</p>
               </div>
-              <div className="text-sm text-slate-400 font-medium">{filtered.length} events found</div>
+              <div style={{ fontSize: 13, color: 'var(--c-text-muted)', fontWeight: 500 }}>{filtered.length} events found</div>
             </div>
 
             {/* Search */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '10px',
-              background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px',
-              padding: '12px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: '14px',
+              padding: '12px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', marginBottom: 24,
             }}>
               <Search className="w-5 h-5 text-slate-400" />
               <input
                 type="text" placeholder="Search events by name..."
                 value={search} onChange={e => setSearch(e.target.value)}
-                style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', color: '#334155', width: '100%' }}
+                style={{ border: 'none', outline: 'none', background: 'transparent', fontSize: '14px', color: 'var(--c-text-main)', width: '100%' }}
               />
               {search && (
-                <button onClick={() => setSearch('')} className="text-slate-400 hover:text-slate-600">
+                <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-text-muted)' }}>
                   <X className="w-4 h-4" />
                 </button>
               )}
@@ -279,11 +282,11 @@ export default function BrowseEvents() {
                       key={id}
                       onClick={() => setSelectedEvent(e)}
                       style={{
-                        background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0',
+                        ...cardStyle,
+                        borderRadius: '16px',
                         overflow: 'hidden', cursor: 'pointer', transition: 'all 0.3s',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                       }}
-                      onMouseEnter={ev => { ev.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.1)'; ev.currentTarget.style.transform = 'translateY(-4px)'; }}
+                      onMouseEnter={ev => { ev.currentTarget.style.boxShadow = '0 12px 32px rgba(0,0,0,0.15)'; ev.currentTarget.style.transform = 'translateY(-4px)'; }}
                       onMouseLeave={ev => { ev.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'; ev.currentTarget.style.transform = 'translateY(0)'; }}
                     >
                       {/* Card Banner */}
@@ -293,7 +296,7 @@ export default function BrowseEvents() {
                           ? `url(${e.image_url}) center/cover`
                           : 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 40%, #EC4899 100%)',
                       }}>
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
                         <div style={{
                           position: 'absolute', top: '12px', right: '12px',
                           width: '32px', height: '32px', borderRadius: '50%',
@@ -317,14 +320,14 @@ export default function BrowseEvents() {
 
                       {/* Card Body */}
                       <div style={{ padding: '16px' }}>
-                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 10px', lineHeight: 1.3 }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--c-text-main)', margin: '0 0 10px', lineHeight: 1.3 }}>
                           {e.title}
                         </h3>
                         <div className="space-y-1.5 mb-4">
-                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--c-text-muted)' }}>
                             <Calendar className="w-3.5 h-3.5 text-purple-500" /> {formatDate(e.start_time)}
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--c-text-muted)' }}>
                             <MapPin className="w-3.5 h-3.5 text-pink-500" /> {e.venue_id || 'TBD'}
                           </div>
                         </div>
@@ -335,7 +338,7 @@ export default function BrowseEvents() {
                           <div className="flex items-center gap-2">
                             <span style={{
                               padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 600,
-                              background: '#f5f3ff', color: '#7C3AED',
+                              background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6',
                             }}>
                               <Users className="w-3 h-3 inline mr-1" />{e.available_tickets || 0} left
                             </span>
@@ -350,6 +353,7 @@ export default function BrowseEvents() {
             )}
           </>
         )}
+        </div>
       </main>
 
       {/* Registration Modal */}
@@ -368,15 +372,10 @@ export default function BrowseEvents() {
             event: selectedEvent,
             ticketType: 'general',
             quantity: 1,
-            totalPrice: selectedEvent.price,
-            attendee: registrationData,
+            unitPrice: selectedEvent.price || 0,
+            registration: registrationData,
           }}
-          onClose={() => setShowCheckout(false)}
-          onBookAnother={() => {
-            setShowCheckout(false);
-            setRegistrationData(null);
-            setShowRegistration(true);
-          }}
+          onClose={() => { setShowCheckout(false); setSelectedEvent(null); }}
         />
       )}
     </div>

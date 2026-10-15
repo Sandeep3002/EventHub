@@ -3,6 +3,7 @@ import { eventService } from '../../services/eventService';
 import Loading from '../../components/Loading';
 import { Tag, PlusCircle, Hash, Pencil, Trash2, X, Check } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
+import { cardStyle, inputStyle, labelStyle, headingStyle, subTextStyle, tableHeadRowStyle, tableHeadCellStyle, tableBodyRowStyle, tableBodyCellStyle } from '../../styles/pageStyles';
 
 export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
@@ -67,50 +68,38 @@ export default function ManageCategories() {
       <div style={{ maxWidth: 900 }}>
       <div style={{ marginBottom: 28 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 6 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: 'linear-gradient(135deg, #059669, #34d399)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #059669, #34d399)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Tag style={{ width: 22, height: 22, color: '#fff' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0 }}>Manage Categories</h1>
-            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Create, edit and delete event categories</p>
+            <h1 style={headingStyle}>Manage Categories</h1>
+            <p style={subTextStyle}>Create, edit and delete event categories</p>
           </div>
         </div>
       </div>
 
-      <div style={{
-        background: '#fff', borderRadius: 14, padding: '16px 22px',
-        border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 20,
-        marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-      }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* Stat card */}
+      <div style={{ ...cardStyle, padding: '16px 22px', display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(5,150,105,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Hash style={{ width: 18, height: 18, color: '#059669' }} />
         </div>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', margin: 0 }}>Total Categories</p>
-          <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', margin: 0 }}>{categories.length}</p>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text-muted)', textTransform: 'uppercase', margin: 0 }}>Total Categories</p>
+          <p style={{ fontSize: 22, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>{categories.length}</p>
         </div>
       </div>
 
-      <div style={{
-        background: '#fff', borderRadius: 14, padding: 24,
-        border: '1px solid #e2e8f0', marginBottom: 24,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-      }}>
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Add New Category</h3>
+      {/* Add form */}
+      <div style={{ ...cardStyle, padding: 24, marginBottom: 24 }}>
+        <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--c-text-main)', marginBottom: 16 }}>Add New Category</h3>
         <form onSubmit={handleAdd} style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>Category Name</label>
-            <input required value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Wellness"
-              style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, color: '#334155', outline: 'none', background: '#f8fafc' }} />
+            <label style={labelStyle}>Category Name</label>
+            <input required value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Wellness" style={inputStyle} />
           </div>
           <div style={{ flex: 1, minWidth: 200 }}>
-            <label style={{ fontSize: 11, fontWeight: 600, color: '#64748b', display: 'block', marginBottom: 6 }}>Slug</label>
-            <input required value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder="e.g. wellness"
-              style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, color: '#334155', outline: 'none', background: '#f8fafc' }} />
+            <label style={labelStyle}>Slug</label>
+            <input required value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder="e.g. wellness" style={inputStyle} />
           </div>
           <button type="submit" disabled={adding} style={{
             display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: 'none',
@@ -122,15 +111,13 @@ export default function ManageCategories() {
         </form>
       </div>
 
-      <div style={{
-        background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0',
-        overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-      }}>
+      {/* Table */}
+      <div style={{ ...cardStyle, overflow: 'hidden', borderRadius: 16 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+            <tr style={tableHeadRowStyle}>
               {['#', 'Name', 'Slug', 'Actions'].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '14px 20px', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                <th key={h} style={tableHeadCellStyle}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -139,44 +126,44 @@ export default function ManageCategories() {
               const color = categoryColors[i % categoryColors.length];
               const isEditing = editId === cat.id;
               return (
-                <tr key={cat.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '14px 20px', fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>{i + 1}</td>
-                  <td style={{ padding: '14px 20px' }}>
+                <tr key={cat.id} style={tableBodyRowStyle}>
+                  <td style={{ ...tableBodyCellStyle, fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 600 }}>{i + 1}</td>
+                  <td style={tableBodyCellStyle}>
                     {isEditing ? (
                       <input value={editName} onChange={e => setEditName(e.target.value)}
-                        style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, width: '100%' }} />
+                        style={{ ...inputStyle, padding: '6px 10px', fontSize: 13 }} />
                     ) : (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
-                        <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{cat.name}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text-main)' }}>{cat.name}</span>
                       </div>
                     )}
                   </td>
-                  <td style={{ padding: '14px 20px' }}>
+                  <td style={tableBodyCellStyle}>
                     {isEditing ? (
                       <input value={editSlug} onChange={e => setEditSlug(e.target.value)}
-                        style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'monospace', width: '100%' }} />
+                        style={{ ...inputStyle, padding: '6px 10px', fontSize: 13, fontFamily: 'monospace' }} />
                     ) : (
-                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#64748b', background: '#f1f5f9', padding: '3px 10px', borderRadius: 6 }}>{cat.slug}</span>
+                      <span style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--c-text-muted)', background: 'var(--c-bg)', padding: '3px 10px', borderRadius: 6 }}>{cat.slug}</span>
                     )}
                   </td>
-                  <td style={{ padding: '14px 20px' }}>
+                  <td style={tableBodyCellStyle}>
                     <div style={{ display: 'flex', gap: 6 }}>
                       {isEditing ? (
                         <>
-                          <button onClick={handleUpdate} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #a7f3d0', background: '#ecfdf5', cursor: 'pointer' }}>
+                          <button onClick={handleUpdate} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(5,150,105,0.3)', background: 'rgba(5,150,105,0.1)', cursor: 'pointer' }}>
                             <Check style={{ width: 14, height: 14, color: '#059669' }} />
                           </button>
-                          <button onClick={() => setEditId(null)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer' }}>
-                            <X style={{ width: 14, height: 14, color: '#64748b' }} />
+                          <button onClick={() => setEditId(null)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'var(--c-bg)', cursor: 'pointer' }}>
+                            <X style={{ width: 14, height: 14, color: 'var(--c-text-muted)' }} />
                           </button>
                         </>
                       ) : (
                         <>
-                          <button onClick={() => startEdit(cat)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', cursor: 'pointer' }}>
+                          <button onClick={() => startEdit(cat)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'var(--c-bg)', cursor: 'pointer' }}>
                             <Pencil style={{ width: 14, height: 14, color: '#6366f1' }} />
                           </button>
-                          <button onClick={() => handleDelete(cat.id)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', cursor: 'pointer' }}>
+                          <button onClick={() => handleDelete(cat.id)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(220,38,38,0.3)', background: 'rgba(220,38,38,0.08)', cursor: 'pointer' }}>
                             <Trash2 style={{ width: 14, height: 14, color: '#dc2626' }} />
                           </button>
                         </>

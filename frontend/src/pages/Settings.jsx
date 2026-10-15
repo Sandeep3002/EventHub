@@ -48,7 +48,7 @@ export default function Settings() {
           setRazorpayAccountId(s.razorpay_account_id || '');
           setPayoutStatus(s.payout_status || 'unconfigured');
         }
-      }).catch(() => {});
+      }).catch(() => { });
     }
   }, [isOrganizerOrAdmin]);
 
@@ -113,11 +113,11 @@ export default function Settings() {
       <Sidebar role={sidebarRole} />
       <main className="dashboard-content space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: 'var(--c-text-main)' }}>
             <SettingsIcon className="w-6 h-6 text-blue-600" />
             Settings
           </h1>
-          <p className="text-xs text-slate-500 mt-1">Manage your account preferences</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--c-text-muted)' }}>Manage your account preferences</p>
         </div>
 
         {saved && (
@@ -142,56 +142,56 @@ export default function Settings() {
 
         {/* Profile Section */}
         <div style={{
-          background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
+          background: 'var(--c-surface)', borderRadius: '14px', border: '1px solid var(--c-border)',
           padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--c-text-main)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <User style={{ width: '18px', height: '18px', color: '#3b82f6' }} />
             Profile Information
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '600px' }}>
             <div className="form-group">
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Full Name</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c-text-muted)', marginBottom: '6px', display: 'block' }}>Full Name</label>
               <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
                 className="form-input" style={{ fontSize: '14px' }} placeholder="Enter full name" />
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Email</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c-text-muted)', marginBottom: '6px', display: 'block' }}>Email</label>
               <input type="email" value={email} disabled
-                className="form-input" style={{ fontSize: '14px', background: '#f8fafc', color: '#94a3b8' }} />
+                className="form-input" style={{ fontSize: '14px', background: 'var(--c-bg)', color: 'var(--c-text-dim)', opacity: 0.8 }} />
             </div>
           </div>
         </div>
 
         {/* Password Section */}
         <div style={{
-          background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
+          background: 'var(--c-surface)', borderRadius: '14px', border: '1px solid var(--c-border)',
           padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--c-text-main)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Shield style={{ width: '18px', height: '18px', color: '#8b5cf6' }} />
             Change Password
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '600px' }}>
             <div className="form-group">
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>Current Password</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c-text-muted)', marginBottom: '6px', display: 'block' }}>Current Password</label>
               <div style={{ position: 'relative' }}>
                 <input type={showCurrent ? 'text' : 'password'} value={currentPassword}
                   onChange={e => setCurrentPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} placeholder="••••••••" />
                 <button type="button" onClick={() => setShowCurrent(!showCurrent)}
                   style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                  {showCurrent ? <EyeOff style={{ width: '16px', height: '16px', color: '#94a3b8' }} /> : <Eye style={{ width: '16px', height: '16px', color: '#94a3b8' }} />}
+                  {showCurrent ? <EyeOff style={{ width: '16px', height: '16px', color: 'var(--c-text-dim)' }} /> : <Eye style={{ width: '16px', height: '16px', color: 'var(--c-text-dim)' }} />}
                 </button>
               </div>
             </div>
             <div className="form-group">
-              <label style={{ fontSize: '13px', fontWeight: 600, color: '#475569', marginBottom: '6px', display: 'block' }}>New Password</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--c-text-muted)', marginBottom: '6px', display: 'block' }}>New Password</label>
               <div style={{ position: 'relative' }}>
                 <input type={showNew ? 'text' : 'password'} value={newPassword}
                   onChange={e => setNewPassword(e.target.value)} className="form-input" style={{ fontSize: '14px', paddingRight: '40px' }} placeholder="Enter new password" />
                 <button type="button" onClick={() => setShowNew(!showNew)}
                   style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                  {showNew ? <EyeOff style={{ width: '16px', height: '16px', color: '#94a3b8' }} /> : <Eye style={{ width: '16px', height: '16px', color: '#94a3b8' }} />}
+                  {showNew ? <EyeOff style={{ width: '16px', height: '16px', color: 'var(--c-text-dim)' }} /> : <Eye style={{ width: '16px', height: '16px', color: 'var(--c-text-dim)' }} />}
                 </button>
               </div>
             </div>
@@ -200,10 +200,10 @@ export default function Settings() {
 
         {/* Notifications Section */}
         <div style={{
-          background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0',
+          background: 'var(--c-surface)', borderRadius: '14px', border: '1px solid var(--c-border)',
           padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--c-text-main)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Bell style={{ width: '18px', height: '18px', color: '#f59e0b' }} />
             Notification Preferences
           </h2>
@@ -213,10 +213,10 @@ export default function Settings() {
               { label: 'Booking Updates', desc: 'Get notified about registration changes', value: bookingNotifs, setter: setBookingNotifs },
               { label: 'Marketing Emails', desc: 'Receive promotional offers and event recommendations', value: marketingNotifs, setter: setMarketingNotifs },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', justify: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#fafbfc', borderRadius: '10px' }}>
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'var(--c-bg)', border: '1px solid var(--c-border)', borderRadius: '10px' }}>
                 <div>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', margin: 0 }}>{item.label}</p>
-                  <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>{item.desc}</p>
+                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--c-text-main)', margin: 0 }}>{item.label}</p>
+                  <p style={{ fontSize: '12px', color: 'var(--c-text-muted)', margin: '2px 0 0' }}>{item.desc}</p>
                 </div>
                 <button type="button" onClick={() => item.setter(!item.value)} style={toggleStyle(item.value)}>
                   <div style={toggleDot(item.value)} />

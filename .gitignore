@@ -17,6 +17,11 @@ venv/
 .venv/
 ENV/
 .env
+.env.*
+.env.local
+.env.production
+.env.development
+*.env*
 *.egg-info/
 *.egg
 .coverage

@@ -6,6 +6,7 @@ from app.database import get_database
 from app.models.user import UserInDB, UserRole
 from app.schemas.user import UserCreate, UserLogin
 from app.utils.security import get_password_hash, verify_password, create_access_token
+from app.utils.email import send_welcome_email
 
 class AuthService:
     @staticmethod
@@ -32,6 +33,16 @@ class AuthService:
         await db.users.insert_one(user_dict)
         token_data = {"sub": user_dict["_id"], "role": user_dict["role"]}
         access_token = create_access_token(token_data)
+
+        # Send welcome/thank-you email to the new user
+        try:
+            await send_welcome_email(
+                email_to=clean_email,
+                user_name=user_in.full_name,
+                role=user_dict["role"],
+            )
+        except Exception:
+            pass  # Don't block registration if email fails
         
         user_dict["id"] = user_dict["_id"]
         return {

@@ -3,6 +3,10 @@ import { Users, Shield, Mail, UserCheck, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
 import { request } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import {
+  cardStyle, inputStyle, headingStyle, subTextStyle,
+  tableHeadRowStyle, tableHeadCellStyle, tableBodyRowStyle, tableBodyCellStyle
+} from '../../styles/pageStyles';
 
 export default function ManageUsers() {
   const { user: currentUser } = useAuth();
@@ -61,10 +65,10 @@ export default function ManageUsers() {
   };
 
   const roleColors = {
-    superadmin: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca' },
-    admin: { bg: '#fef3c7', text: '#b45309', border: '#fde68a' },
-    organizer: { bg: '#f3e8ff', text: '#7c3aed', border: '#e9d5ff' },
-    attendee: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
+    superadmin: { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.3)' },
+    admin: { bg: 'rgba(245, 158, 11, 0.12)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.3)' },
+    organizer: { bg: 'rgba(139, 92, 246, 0.12)', text: '#8b5cf6', border: 'rgba(139, 92, 246, 0.3)' },
+    attendee: { bg: 'rgba(59, 130, 246, 0.12)', text: '#3b82f6', border: 'rgba(59, 130, 246, 0.3)' },
   };
 
   const isSuperAdmin = currentUser?.role === 'superadmin';
@@ -80,26 +84,26 @@ export default function ManageUsers() {
             <Users style={{ width: 22, height: 22, color: '#fff' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0 }}>Manage Users</h1>
-            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>View and manage all registered platform users</p>
+            <h1 style={headingStyle}>Manage Users</h1>
+            <p style={subTextStyle}>View and manage all registered platform users</p>
           </div>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
         {[
-          { label: 'Total Users', value: stats.total, icon: Users, color: '#6366f1', bg: '#eef2ff' },
-          { label: 'Active', value: stats.active, icon: UserCheck, color: '#059669', bg: '#ecfdf5' },
-          { label: 'Admins', value: stats.admins, icon: Shield, color: '#b45309', bg: '#fef3c7' },
-          { label: 'Organizers', value: stats.organizers, icon: Mail, color: '#7c3aed', bg: '#f3e8ff' },
+          { label: 'Total Users', value: stats.total, icon: Users, color: '#6366f1', bg: 'rgba(99, 102, 241, 0.12)' },
+          { label: 'Active', value: stats.active, icon: UserCheck, color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
+          { label: 'Admins', value: stats.admins, icon: Shield, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
+          { label: 'Organizers', value: stats.organizers, icon: Mail, color: '#7c3aed', bg: 'rgba(124, 58, 237, 0.12)' },
         ].map((s, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 14, padding: '20px 22px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 14, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+          <div key={i} style={{ ...cardStyle, padding: '20px 22px', display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{ width: 42, height: 42, borderRadius: 10, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <s.icon style={{ width: 20, height: 20, color: s.color }} />
             </div>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{s.label}</p>
-              <p style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', margin: 0 }}>{s.value}</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{s.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>{s.value}</p>
             </div>
           </div>
         ))}
@@ -107,15 +111,15 @@ export default function ManageUsers() {
 
       <div style={{ marginBottom: 16 }}>
         <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search users by name or email..."
-          style={{ width: '100%', maxWidth: 400, padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, outline: 'none', background: '#f8fafc' }} />
+          style={{ ...inputStyle, maxWidth: 400 }} />
       </div>
 
-      <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+      <div style={{ ...cardStyle, borderRadius: 16, overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+            <tr style={tableHeadRowStyle}>
               {['User', 'Email', 'Role', 'Status', 'Joined', ...(isSuperAdmin ? ['Actions'] : [])].map(h => (
-                <th key={h} style={{ textAlign: 'left', padding: '14px 20px', fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                <th key={h} style={tableHeadCellStyle}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -124,19 +128,17 @@ export default function ManageUsers() {
               const rc = roleColors[user.role] || roleColors.attendee;
               const isSelf = user.id === currentUser?.id;
               return (
-                <tr key={user.id} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.15s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                  <td style={{ padding: '16px 20px' }}>
+                <tr key={user.id} style={tableBodyRowStyle}>
+                  <td style={tableBodyCellStyle}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #a78bfa)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 14 }}>
                         {user.full_name?.charAt(0)}
                       </div>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{user.full_name}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text-main)' }}>{user.full_name}</span>
                     </div>
                   </td>
-                  <td style={{ padding: '16px 20px', fontSize: 12, color: '#64748b' }}>{user.email}</td>
-                  <td style={{ padding: '16px 20px' }}>
+                  <td style={{ ...tableBodyCellStyle, fontSize: 12, color: 'var(--c-text-muted)' }}>{user.email}</td>
+                  <td style={tableBodyCellStyle}>
                     {isSuperAdmin && !isSelf ? (
                       <select value={user.role} onChange={e => handleRoleChange(user.id, e.target.value)}
                         style={{ fontSize: 11, fontWeight: 700, textTransform: 'capitalize', padding: '4px 8px', borderRadius: 8, background: rc.bg, color: rc.text, border: `1px solid ${rc.border}`, cursor: 'pointer' }}>
@@ -148,30 +150,30 @@ export default function ManageUsers() {
                       <span style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, textTransform: 'capitalize', padding: '4px 12px', borderRadius: 20, background: rc.bg, color: rc.text, border: `1px solid ${rc.border}` }}>{user.role}</span>
                     )}
                   </td>
-                  <td style={{ padding: '16px 20px' }}>
+                  <td style={tableBodyCellStyle}>
                     {isSuperAdmin && !isSelf ? (
                       <button onClick={() => handleToggleActive(user.id)} style={{
                         display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20, cursor: 'pointer', border: 'none',
-                        background: user.is_active ? '#ecfdf5' : '#fef2f2', color: user.is_active ? '#059669' : '#dc2626',
+                        background: user.is_active ? 'rgba(5, 150, 105, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: user.is_active ? '#059669' : '#ef4444',
                       }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: user.is_active ? '#059669' : '#dc2626' }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: user.is_active ? '#059669' : '#ef4444' }} />
                         {user.is_active ? 'Active' : 'Inactive'}
                       </button>
                     ) : (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: user.is_active ? '#ecfdf5' : '#fef2f2', color: user.is_active ? '#059669' : '#dc2626', border: `1px solid ${user.is_active ? '#a7f3d0' : '#fecaca'}` }}>
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: user.is_active ? '#059669' : '#dc2626' }} />
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: user.is_active ? 'rgba(5, 150, 105, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: user.is_active ? '#059669' : '#ef4444', border: `1px solid ${user.is_active ? 'rgba(5, 150, 105, 0.3)' : 'rgba(239, 68, 68, 0.3)'}` }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: user.is_active ? '#059669' : '#ef4444' }} />
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: '16px 20px', fontSize: 12, color: '#94a3b8' }}>
+                  <td style={{ ...tableBodyCellStyle, fontSize: 12, color: 'var(--c-text-muted)' }}>
                     {new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </td>
                   {isSuperAdmin && (
-                    <td style={{ padding: '16px 20px' }}>
+                    <td style={tableBodyCellStyle}>
                       {!isSelf && (
-                        <button onClick={() => handleDelete(user.id)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid #fecaca', background: '#fef2f2', cursor: 'pointer' }}>
-                          <Trash2 style={{ width: 14, height: 14, color: '#dc2626' }} />
+                        <button onClick={() => handleDelete(user.id)} style={{ padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.08)', cursor: 'pointer' }}>
+                          <Trash2 style={{ width: 14, height: 14, color: '#ef4444' }} />
                         </button>
                       )}
                     </td>

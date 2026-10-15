@@ -211,8 +211,8 @@ export default function Registrations() {
       <main className="dashboard-content space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Registrations</h1>
-            <p className="text-xs text-slate-500 mt-1">All attendees who registered for your events</p>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>Registrations</h1>
+            <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>All attendees who registered for your events</p>
           </div>
           {selectedIds.length > 0 && (
             <button
@@ -228,18 +228,30 @@ export default function Registrations() {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Total', value: stats.total, icon: Users, color: 'text-purple-600', bg: 'bg-purple-50' },
-            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50' },
-            { label: 'Revenue', value: `$${stats.revenue.toLocaleString()}`, icon: Ticket, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { label: 'Total', value: stats.total, icon: Users, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.14)' },
+            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle2, color: '#10b981', bg: 'rgba(16, 185, 129, 0.14)' },
+            { label: 'Pending', value: stats.pending, icon: Clock, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.14)' },
+            { label: 'Revenue', value: `$${stats.revenue.toLocaleString()}`, icon: Ticket, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.14)' },
           ].map((s, i) => (
-            <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3 shadow-sm">
-              <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center`}>
-                <s.icon className={`w-5 h-5 ${s.color}`} />
+            <div key={i} style={{
+              background: 'var(--c-surface)',
+              border: '1px solid var(--c-border)',
+              borderRadius: 14,
+              padding: '16px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+            }}>
+              <div style={{
+                width: 42, height: 42, borderRadius: 10,
+                background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+              }}>
+                <s.icon style={{ width: 20, height: 20, color: s.color }} />
               </div>
               <div>
-                <div className="text-[11px] text-slate-400 font-semibold uppercase">{s.label}</div>
-                <div className="text-xl font-extrabold text-slate-900">{s.value}</div>
+                <div style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--c-text-main)' }}>{s.value}</div>
               </div>
             </div>
           ))}
@@ -247,20 +259,37 @@ export default function Registrations() {
 
         {/* Search */}
         <div className="flex gap-3 items-center">
-          <div className="flex-1 flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2.5">
+          <div style={{
+            flex: 1, display: 'flex', alignItems: 'center', gap: 10,
+            background: 'var(--c-surface)', border: '1px solid var(--c-border)',
+            borderRadius: 10, padding: '10px 14px',
+          }}>
             <Search className="w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search by name, email, event, or pass code..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              className="border-none outline-none bg-transparent text-sm text-slate-700 w-full"
+              style={{
+                border: 'none', outline: 'none', background: 'transparent',
+                fontSize: 13, color: 'var(--c-text-main)', width: '100%',
+              }}
             />
           </div>
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="form-select text-xs py-2.5 w-auto"
+            style={{
+              background: 'var(--c-surface)',
+              color: 'var(--c-text-main)',
+              border: '1px solid var(--c-border)',
+              borderRadius: 10,
+              padding: '10px 16px',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              outline: 'none',
+            }}
           >
             <option value="all">All Status</option>
             <option value="confirmed">Confirmed</option>
@@ -269,7 +298,13 @@ export default function Registrations() {
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+        <div style={{
+          background: 'var(--c-surface)',
+          border: '1px solid var(--c-border)',
+          borderRadius: 14,
+          overflow: 'hidden',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}>
           {filtered.length === 0 ? (
             <div className="p-12 text-center text-slate-400">
               <Users className="w-10 h-10 mx-auto mb-3 text-slate-300" />
@@ -278,60 +313,71 @@ export default function Registrations() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="custom-table">
+              <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr>
-                    <th className="w-10">
+                  <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-border)' }}>
+                    <th className="w-10" style={{ padding: '14px 16px' }}>
                       <input type="checkbox" checked={selectedIds.length === filtered.length && filtered.length > 0} onChange={toggleSelectAll} className="rounded" />
                     </th>
-                    <th>Attendee</th>
-                    <th>Phone</th>
-                    <th>Age</th>
-                    <th>Event</th>
-                    <th>Amount</th>
-                    <th>Pass Code</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Attendee</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Phone</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Age</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Event</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Amount</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Pass Code</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Date</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Status</th>
+                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(r => (
-                    <tr key={r.id}>
-                      <td>
+                    <tr key={r.id} style={{ borderBottom: '1px solid var(--c-border)' }}>
+                      <td style={{ padding: '14px 16px' }}>
                         <input type="checkbox" checked={selectedIds.includes(r.id)} onChange={() => toggleSelect(r.id)} className="rounded" />
                       </td>
-                      <td>
-                        <div className="font-semibold text-slate-900">{r.attendee_name || '-'}</div>
-                        <div className="text-[11px] text-slate-400">{r.attendee_email || '-'}</div>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--c-text-main)', fontSize: 13 }}>{r.attendee_name || '-'}</div>
+                        <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{r.attendee_email || '-'}</div>
                       </td>
-                      <td className="text-slate-600">{r.attendee_phone || '-'}</td>
-                      <td className="text-slate-600">{r.attendee_age || '-'}</td>
-                      <td className="font-medium text-slate-800">{r.event_title || '-'}</td>
-                      <td className="font-bold text-emerald-600">${r.total_amount || 0}</td>
-                      <td>
+                      <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--c-text-muted)' }}>{r.attendee_phone || '-'}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--c-text-muted)' }}>{r.attendee_age || '-'}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: 'var(--c-text-main)' }}>{r.event_title || '-'}</td>
+                      <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 700, color: '#10b981' }}>${r.total_amount || 0}</td>
+                      <td style={{ padding: '14px 16px' }}>
                         <button
                           onClick={() => setSelectedPass(r)}
-                          className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold transition cursor-pointer"
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6',
+                            border: '1px solid rgba(124, 58, 237, 0.25)',
+                            padding: '4px 10px', borderRadius: 8, fontSize: 11, fontFamily: 'monospace', fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
                           title="Click to view & verify QR Code"
                         >
-                          <QrCode className="w-3.5 h-3.5 text-purple-600" />
+                          <QrCode style={{ width: 14, height: 14, color: '#8b5cf6' }} />
                           <span>{r.qr_code_token || '-'}</span>
                         </button>
                       </td>
-                      <td className="text-slate-500 text-xs">{formatDate(r.created_at)}</td>
-                      <td>
-                        <span className={`status-pill ${r.status === 'confirmed' ? 'status-published' : 'status-draft'}`}>
+                      <td style={{ padding: '14px 16px', fontSize: 12, color: 'var(--c-text-muted)' }}>{formatDate(r.created_at)}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <span style={{
+                          display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'capitalize',
+                          background: r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                          color: r.status === 'confirmed' ? '#10b981' : '#f59e0b',
+                          border: `1px solid ${r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                        }}>
                           {r.status || 'pending'}
                         </span>
                       </td>
-                      <td>
+                      <td style={{ padding: '14px 16px' }}>
                         <button
                           onClick={() => handleDelete(r.id)}
                           title="Delete registration"
                           style={{
                             width: '32px', height: '32px', borderRadius: '8px',
-                            border: '1px solid #fee2e2', background: '#fff5f5',
+                            border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.08)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                           }}
                         >
@@ -345,7 +391,15 @@ export default function Registrations() {
             </div>
           )}
           {filtered.length > 0 && (
-            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-400 flex justify-between">
+            <div style={{
+              padding: '12px 20px',
+              borderTop: '1px solid var(--c-border)',
+              background: 'var(--c-bg)',
+              fontSize: 12,
+              color: 'var(--c-text-muted)',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}>
               <span>Showing {filtered.length} of {registrations.length} registrations</span>
               <span>{selectedIds.length} selected</span>
             </div>
@@ -365,7 +419,7 @@ export default function Registrations() {
               <div className="text-[10px] text-purple-300 font-bold uppercase tracking-widest mb-1">Attendee Pass & QR Code</div>
               <h3 className="text-lg font-bold text-white mb-4">{selectedPass.event_title || 'Event Pass'}</h3>
 
-              <div className="inline-block bg-white p-4 rounded-2xl shadow-xl">
+              <div data-qr-box="true" className="inline-block bg-white p-4 rounded-2xl shadow-xl">
                 <img
                   src={generateQRDataURL(selectedPass.qr_code_token || 'EVTHUB')}
                   alt="QR Code"

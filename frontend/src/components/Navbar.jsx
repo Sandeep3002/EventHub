@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Search, User, LogOut, LayoutDashboard, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X } from 'lucide-react';
+import { Search, User, LogOut, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X, Moon, Sun } from 'lucide-react';
 import { notificationService } from '../services/notificationService';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Navbar() {
   const { user, logout, isAdmin, isOrganizer } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -47,7 +49,8 @@ export default function Navbar() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/events?search=${encodeURIComponent(searchQuery.trim())}`);
+      const target = user ? '/customer/events' : '/events';
+      navigate(`${target}?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -69,7 +72,7 @@ export default function Navbar() {
             <NavLink to="/" end className={({ isActive }) => isActive ? 'active' : ''}>
               Home
             </NavLink>
-            <NavLink to="/events" className={({ isActive }) => isActive ? 'active' : ''}>
+            <NavLink to={user ? "/customer/events" : "/events"} className={({ isActive }) => isActive ? 'active' : ''}>
               Events
             </NavLink>
             <NavLink to="/about" className={({ isActive }) => isActive ? 'active' : ''}>
@@ -188,6 +191,20 @@ export default function Navbar() {
             </div>
           )}
 
+          {/* Dark / Light Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={isDark ? 'Light mode' : 'Dark mode'}
+          >
+            <span className="theme-toggle-track">
+              <span className="theme-toggle-thumb">
+                {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </span>
+            </span>
+          </button>
+
           {/* User Profile Dropdown Pill - only on public pages, sidebar handles dashboard */}
           {!isDashboardPage && (user ? (
             <div className="relative" ref={userMenuRef}>
@@ -212,11 +229,7 @@ export default function Navbar() {
                     <p className="text-[11px] text-slate-500 capitalize">{user.role || 'Attendee'}</p>
                   </div>
 
-                  <Link to="/customer" onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-lg">
-                    <LayoutDashboard className="w-4 h-4 text-slate-500" />
-                    Dashboard
-                  </Link>
+
 
                   <Link to="/customer/bookings" onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 rounded-lg">

@@ -28,7 +28,14 @@ export default function Register() {
     setLoading(true);
     try {
       await register(fullName, email, password, role);
-      navigate('/');
+      // Registration successful — redirect to login page with success message
+      navigate('/login', {
+        state: {
+          registrationSuccess: true,
+          registeredEmail: email,
+          registeredName: fullName,
+        }
+      });
     } catch (err) {
       setError(err.message || 'Registration failed.');
     } finally {

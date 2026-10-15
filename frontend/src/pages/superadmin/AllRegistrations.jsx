@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar';
 import { bookingService } from '../../services/bookingService';
 import { Users, Search, QrCode, Trash2, Clock, X, Download, CheckCircle2 } from 'lucide-react';
+import { cardStyle } from '../../styles/pageStyles';
 
 export default function AllRegistrations() {
   const [registrations, setRegistrations] = useState([]);
@@ -98,8 +99,8 @@ export default function AllRegistrations() {
       ['Pass Code', booking.qr_code_token || '-'],
       ['Attendee', booking.attendee_name || '-'],
       ['Email', booking.attendee_email || '-'],
-      ['Event', booking.event_title || '-'],
-      ['Status', (booking.status || 'CONFIRMED').toUpperCase()],
+      ['Booking Status', (booking.status || 'confirmed').toUpperCase()],
+      ['Amount Paid', `₹${booking.total_amount || 0}`],
     ];
 
     details.forEach(([label, value], i) => {
@@ -118,12 +119,14 @@ export default function AllRegistrations() {
     link.click();
   };
 
-  const filtered = registrations.filter(r =>
-    !search ||
-    (r.attendee_name || '').toLowerCase().includes(search.toLowerCase()) ||
-    (r.attendee_email || '').toLowerCase().includes(search.toLowerCase()) ||
-    (r.event_title || '').toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = registrations.filter(r => {
+    const q = search.toLowerCase();
+    return !search ||
+      (r.attendee_name || '').toLowerCase().includes(q) ||
+      (r.attendee_email || '').toLowerCase().includes(q) ||
+      (r.event_title || '').toLowerCase().includes(q) ||
+      (r.qr_code_token || '').toLowerCase().includes(q);
+  });
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this registration?')) return;
@@ -143,153 +146,136 @@ export default function AllRegistrations() {
     <div className="dashboard-layout">
       <Sidebar role="superadmin" />
       <main className="dashboard-content space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-6 h-6 text-purple-600" />
-            All Registrations
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">All bookings and registrations across the platform</p>
-        </div>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Users className="w-6 h-6 text-purple-600" />
+              All Registrations
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>All bookings and registrations across the platform</p>
+          </div>
 
-        <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-3 py-2.5">
-          <Search className="w-4 h-4 text-slate-400" />
-          <input type="text" placeholder="Search by name, email, or event..." value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border-none outline-none bg-transparent text-sm text-slate-700 w-full" />
-        </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'var(--c-surface)', border: '1px solid var(--c-border)',
+            borderRadius: 10, padding: '10px 14px', marginBottom: 20,
+          }}>
+            <Search className="w-4 h-4 text-slate-400" />
+            <input type="text" placeholder="Search by name, email, or event..." value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                border: 'none', outline: 'none', background: 'transparent',
+                fontSize: 13, color: 'var(--c-text-main)', width: '100%',
+              }} />
+          </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          {loading ? <div className="p-12 text-center text-slate-400">Loading...</div> : filtered.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">No registrations found.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Attendee</th>
-                    <th>Phone</th>
-                    <th>Event</th>
-                    <th>Amount</th>
-                    <th>Pass Code</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map(r => (
-                    <tr key={r.id}>
-                      <td>
-                        <div className="font-semibold text-slate-900">{r.attendee_name || '-'}</div>
-                        <div className="text-[11px] text-slate-400">{r.attendee_email || '-'}</div>
-                      </td>
-                      <td className="text-slate-600">{r.attendee_phone || '-'}</td>
-                      <td className="font-medium text-slate-800">{r.event_title || '-'}</td>
-                      <td className="font-bold text-emerald-600">₹{r.total_amount || 0}</td>
-                      <td>
-                        <button
-                          onClick={() => setSelectedPass(r)}
-                          className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 hover:border-purple-300 px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold transition cursor-pointer"
-                          title="Click to view & verify QR Code"
-                        >
-                          <QrCode className="w-3.5 h-3.5 text-purple-600" />
-                          <span>{r.qr_code_token || '-'}</span>
-                        </button>
-                      </td>
-                      <td className="text-slate-500 text-xs">{formatDate(r.created_at)}</td>
-                      <td>
-                        <span style={{
-                          padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
-                          background: r.status === 'confirmed' ? '#ecfdf5' : '#fffbeb',
-                          color: r.status === 'confirmed' ? '#10b981' : '#f59e0b',
-                        }}>{r.status || 'pending'}</span>
-                      </td>
-                      <td>
-                        <button onClick={() => handleDelete(r.id)} title="Delete"
-                          style={{
-                            width: '32px', height: '32px', borderRadius: '8px', border: '1px solid #fee2e2',
-                            background: '#fff5f5', display: 'flex', items: 'center', justifyContent: 'center', cursor: 'pointer',
-                          }}>
-                          <Trash2 style={{ width: '14px', height: '14px', color: '#ef4444' }} />
-                        </button>
-                      </td>
+          <div style={{ ...cardStyle, overflow: 'hidden' }}>
+            {loading ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading...</div> : filtered.length === 0 ? (
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>No registrations found.</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-border)' }}>
+                      {['Attendee', 'Phone', 'Event', 'Amount', 'Pass Code', 'Date', 'Status', 'Action'].map(h => (
+                        <th key={h} style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-          <div className="px-5 py-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-400">
-            Showing {filtered.length} of {registrations.length} registrations
+                  </thead>
+                  <tbody>
+                    {filtered.map(r => (
+                      <tr key={r.id} style={{ borderBottom: '1px solid var(--c-border)' }}>
+                        <td style={{ padding: '14px 16px' }}>
+                          <div style={{ fontWeight: 600, color: 'var(--c-text-main)', fontSize: 13 }}>{r.attendee_name || '-'}</div>
+                          <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{r.attendee_email || '-'}</div>
+                        </td>
+                        <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--c-text-muted)' }}>{r.attendee_phone || '-'}</td>
+                        <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: 'var(--c-text-main)' }}>{r.event_title || '-'}</td>
+                        <td style={{ padding: '14px 16px', fontWeight: 700, color: '#10b981' }}>₹{r.total_amount || 0}</td>
+                        <td style={{ padding: '14px 16px' }}>
+                          <button
+                            onClick={() => setSelectedPass(r)}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 6,
+                              background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6',
+                              border: '1px solid rgba(124, 58, 237, 0.25)',
+                              padding: '4px 10px', borderRadius: 8, fontSize: 11, fontFamily: 'monospace', fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                            title="Click to view & verify QR Code"
+                          >
+                            <QrCode style={{ width: 14, height: 14, color: '#8b5cf6' }} />
+                            <span>{r.qr_code_token || '-'}</span>
+                          </button>
+                        </td>
+                        <td style={{ padding: '14px 16px', fontSize: 12, color: 'var(--c-text-muted)' }}>{formatDate(r.created_at)}</td>
+                        <td style={{ padding: '14px 16px' }}>
+                          <span style={{
+                            display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'capitalize',
+                            background: r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                            color: r.status === 'confirmed' ? '#10b981' : '#f59e0b',
+                            border: `1px solid ${r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                          }}>{r.status || 'pending'}</span>
+                        </td>
+                        <td style={{ padding: '14px 16px' }}>
+                          <button onClick={() => handleDelete(r.id)} title="Delete"
+                            style={{
+                              width: '32px', height: '32px', borderRadius: '8px', border: '1px solid rgba(239, 68, 68, 0.3)',
+                              background: 'rgba(239, 68, 68, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                            }}>
+                            <Trash2 style={{ width: '14px', height: '14px', color: '#ef4444' }} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </main>
 
-      {/* QR Code Pass Modal */}
+      {/* QR Code Modal */}
       {selectedPass && (
         <div className="modal-overlay" onClick={() => setSelectedPass(null)}>
           <div className="modal-content max-w-sm p-0 overflow-hidden" style={{ borderRadius: '20px' }} onClick={e => e.stopPropagation()}>
             <div style={{ background: 'linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #7C3AED 100%)' }} className="px-6 pt-6 pb-5 relative text-center">
-              <button onClick={() => setSelectedPass(null)} className="absolute top-4 right-4 p-1.5 rounded-full bg-white/20 text-white hover:bg-white/30 transition">
+              <button
+                onClick={() => setSelectedPass(null)}
+                className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition"
+              >
                 <X className="w-4 h-4" />
               </button>
+              <div className="inline-flex items-center gap-1.5 bg-white/10 text-purple-200 px-3 py-1 rounded-full text-[11px] font-semibold mb-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                Verified Entry Pass
+              </div>
+              <h3 className="text-base font-bold text-white leading-snug line-clamp-2">{selectedPass.event_title || 'Event Pass'}</h3>
+              <p className="text-xs text-purple-200 mt-1">{selectedPass.attendee_name || 'Attendee'}</p>
+            </div>
 
-              <div className="text-[10px] text-purple-300 font-bold uppercase tracking-widest mb-1">Attendee Pass & QR Code</div>
-              <h3 className="text-lg font-bold text-white mb-4">{selectedPass.event_title || 'Event Pass'}</h3>
-
-              <div className="inline-block bg-white p-4 rounded-2xl shadow-xl">
+            <div className="p-6 text-center" style={{ background: 'var(--c-surface)' }}>
+              <div data-qr-box="true" className="inline-block p-3 bg-white rounded-2xl shadow-md border border-slate-100 mb-4">
                 <img
                   src={generateQRDataURL(selectedPass.qr_code_token || 'EVTHUB')}
-                  alt="QR Code"
-                  className="w-48 h-48"
-                  style={{ imageRendering: 'pixelated' }}
+                  alt="QR Pass Code"
+                  className="w-44 h-44 object-contain"
                 />
               </div>
 
-              <div className="mt-4 inline-flex items-center gap-1.5 bg-white/10 border border-white/20 px-4 py-2 rounded-xl">
-                <span className="font-mono text-white font-bold text-sm tracking-wider">{selectedPass.qr_code_token || '-'}</span>
-              </div>
-            </div>
-
-            <div className="px-6 py-5 space-y-3 bg-white">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Attendee</div>
-                  <div className="font-bold text-slate-900 mt-0.5">{selectedPass.attendee_name || '-'}</div>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Email</div>
-                  <div className="font-bold text-slate-900 mt-0.5 truncate">{selectedPass.attendee_email || '-'}</div>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Amount</div>
-                  <div className="font-bold text-emerald-600 mt-0.5">₹{selectedPass.total_amount || 0}</div>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Status</div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="font-bold text-emerald-600 uppercase">{selectedPass.status || 'confirmed'}</span>
-                  </div>
-                </div>
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 mb-4 border border-slate-100 dark:border-slate-700">
+                <div className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">Pass Code</div>
+                <div className="text-sm font-mono font-bold text-purple-600 mt-0.5">{selectedPass.qr_code_token || '-'}</div>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={() => handleDownloadPass(selectedPass)}
-                  className="flex-1 py-3 text-sm font-bold rounded-xl border-2 border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Download
-                </button>
-                <button
-                  onClick={() => setSelectedPass(null)}
-                  style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)' }}
-                  className="flex-1 py-3 text-sm font-bold rounded-xl text-white hover:opacity-90 transition shadow-lg shadow-purple-300/30"
-                >
-                  Close
-                </button>
-              </div>
+              <button
+                onClick={() => handleDownloadPass(selectedPass)}
+                className="w-full btn-primary text-xs py-2.5 flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Pass</span>
+              </button>
             </div>
           </div>
         </div>

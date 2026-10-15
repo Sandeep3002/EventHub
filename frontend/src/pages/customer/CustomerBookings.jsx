@@ -136,79 +136,87 @@ export default function CustomerBookings() {
     <div className="dashboard-layout">
       <Sidebar role="customer" />
       <main className="dashboard-content space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Bookings</h1>
-          <p className="text-xs text-slate-500 mt-1">All your event registrations and tickets</p>
-        </div>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ marginBottom: 24 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>My Bookings</h1>
+            <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>All your event registrations and tickets</p>
+          </div>
 
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          {loading ? <div className="p-12 text-center text-slate-400">Loading bookings...</div> : bookings.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
-              <Ticket className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-              <p className="font-semibold">No bookings yet</p>
-              <p className="text-xs mt-1">Browse events and register to see your bookings here.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Event</th>
-                    <th>Quantity</th>
-                    <th>Amount</th>
-                    <th>Pass Code</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {bookings.map(b => (
-                    <tr key={b.id || b._id}>
-                      <td className="font-semibold text-slate-900">{b.event_title || 'Event'}</td>
-                      <td className="text-slate-600">{b.quantity || 1}</td>
-                      <td className="font-bold text-emerald-600">₹{b.total_amount || 0}</td>
-                      <td>
-                        <button
-                          onClick={() => setSelectedPass(b)}
-                          className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-lg text-[11px] font-mono font-semibold hover:bg-purple-100 hover:border-purple-300 transition cursor-pointer"
-                        >
-                          <QrCode className="w-3.5 h-3.5" />
-                          {b.qr_code_token || '-'}
-                        </button>
-                      </td>
-                      <td className="text-xs text-slate-500">{formatDate(b.created_at)}</td>
-                      <td>
-                        <span style={{
-                          padding: '4px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 600,
-                          background: b.status === 'confirmed' ? '#ecfdf5' : b.status === 'cancelled' ? '#fef2f2' : '#fffbeb',
-                          color: b.status === 'confirmed' ? '#10b981' : b.status === 'cancelled' ? '#ef4444' : '#f59e0b',
-                        }}>{b.status || 'pending'}</span>
-                      </td>
-                      <td>
-                        {b.status !== 'cancelled' && (
-                          <button
-                            onClick={async () => {
-                              if (!window.confirm('Cancel this booking? Seats will be restored.')) return;
-                              try {
-                                await bookingService.cancelRegistration(b.id || b._id);
-                                setBookings(prev => prev.map(x => (x.id || x._id) === (b.id || b._id) ? { ...x, status: 'cancelled' } : x));
-                              } catch (err) {
-                                alert('Failed to cancel: ' + err.message);
-                              }
-                            }}
-                            className="text-xs font-semibold text-red-600 hover:text-red-800 hover:underline"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </td>
+          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+            {loading ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading bookings...</div> : bookings.length === 0 ? (
+              <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>
+                <Ticket style={{ width: 40, height: 40, margin: '0 auto 12px', opacity: 0.5 }} />
+                <p style={{ fontWeight: 600, color: 'var(--c-text-main)' }}>No bookings yet</p>
+                <p style={{ fontSize: 12, marginTop: 4 }}>Browse events and register to see your bookings here.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-border)' }}>
+                      {['Event', 'Quantity', 'Amount', 'Pass Code', 'Date', 'Status', 'Actions'].map(h => (
+                        <th key={h} style={{ textAlign: 'left', padding: '14px 18px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {bookings.map(b => (
+                      <tr key={b.id || b._id} style={{ borderBottom: '1px solid var(--c-border)' }}>
+                        <td style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--c-text-main)' }}>{b.event_title || 'Event'}</td>
+                        <td style={{ padding: '14px 18px', color: 'var(--c-text-muted)' }}>{b.quantity || 1}</td>
+                        <td style={{ padding: '14px 18px', fontWeight: 700, color: '#10b981' }}>₹{b.total_amount || 0}</td>
+                        <td style={{ padding: '14px 18px' }}>
+                          <button
+                            onClick={() => setSelectedPass(b)}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 6,
+                              background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6',
+                              border: '1px solid rgba(124, 58, 237, 0.25)',
+                              padding: '4px 10px', borderRadius: 8, fontSize: 11, fontFamily: 'monospace', fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            <QrCode style={{ width: 14, height: 14 }} />
+                            {b.qr_code_token || '-'}
+                          </button>
+                        </td>
+                        <td style={{ padding: '14px 18px', fontSize: 12, color: 'var(--c-text-muted)' }}>{formatDate(b.created_at)}</td>
+                        <td style={{ padding: '14px 18px' }}>
+                          <span style={{
+                            display: 'inline-block', padding: '3px 12px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'capitalize',
+                            background: b.status === 'confirmed' ? 'rgba(16, 185, 129, 0.12)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                            color: b.status === 'confirmed' ? '#10b981' : b.status === 'cancelled' ? '#ef4444' : '#f59e0b',
+                            border: `1px solid ${b.status === 'confirmed' ? 'rgba(16, 185, 129, 0.3)' : b.status === 'cancelled' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+                          }}>{b.status || 'pending'}</span>
+                        </td>
+                        <td style={{ padding: '14px 18px' }}>
+                          {b.status !== 'cancelled' && (
+                            <button
+                              onClick={async () => {
+                                if (!window.confirm('Cancel this booking? Seats will be restored.')) return;
+                                try {
+                                  await bookingService.cancelRegistration(b.id || b._id);
+                                  setBookings(prev => prev.map(x => (x.id || x._id) === (b.id || b._id) ? { ...x, status: 'cancelled' } : x));
+                                } catch (err) {
+                                  alert('Failed to cancel: ' + err.message);
+                                }
+                              }}
+                              style={{
+                                background: 'none', border: 'none', fontSize: 12, fontWeight: 600,
+                                color: '#ef4444', cursor: 'pointer', textDecoration: 'underline',
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
@@ -226,7 +234,7 @@ export default function CustomerBookings() {
               <h3 className="text-lg font-bold text-white mb-4">{selectedPass.event_title || 'Event'}</h3>
 
               {/* QR Code */}
-              <div className="inline-block bg-white p-4 rounded-2xl shadow-xl">
+              <div data-qr-box="true" className="inline-block bg-white p-4 rounded-2xl shadow-xl">
                 <img
                   src={generateQRDataURL(selectedPass.qr_code_token || 'EVTHUB')}
                   alt="QR Code"

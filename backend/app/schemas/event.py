@@ -14,6 +14,8 @@ class EventCreate(BaseModel):
     capacity: int = 100
     price: float = 0.0
     tags: List[str] = []
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
 
 class EventUpdate(BaseModel):
     title: Optional[str] = None
@@ -27,6 +29,8 @@ class EventUpdate(BaseModel):
     price: Optional[float] = None
     tags: Optional[List[str]] = None
     status: Optional[EventStatus] = None
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
 
 class EventResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -46,5 +50,7 @@ class EventResponse(BaseModel):
     price: float
     tags: List[str]
     status: EventStatus
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
     created_at: datetime
     updated_at: datetime

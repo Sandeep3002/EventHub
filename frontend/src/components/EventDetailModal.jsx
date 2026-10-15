@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, MapPin, Ticket, ShieldCheck, Clock, Check, Plus, Minus, ArrowRight } from 'lucide-react';
+import { X, Calendar, MapPin, Ticket, ShieldCheck, Clock, Check, Plus, Minus, ArrowRight, Phone, Mail } from 'lucide-react';
 
 export default function EventDetailModal({ event, venue, category, onClose, onProceedToCheckout }) {
   const [ticketType, setTicketType] = useState('general');
@@ -79,6 +79,27 @@ export default function EventDetailModal({ event, venue, category, onClose, onPr
               {event.description}
             </p>
           </div>
+
+          {/* Organizer Contact Information */}
+          {(event.contact_phone || event.contact_email) && (
+            <div className="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contact Organizer</h4>
+              <div className="flex flex-wrap items-center gap-4 text-xs font-medium">
+                {event.contact_phone && (
+                  <a href={`tel:${event.contact_phone}`} className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 transition">
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>{event.contact_phone}</span>
+                  </a>
+                )}
+                {event.contact_email && (
+                  <a href={`mailto:${event.contact_email}`} className="flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition">
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>{event.contact_email}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Ticket Tier Options */}
           <div>

@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
 import { BarChart2, TrendingUp, DollarSign, Users, Calendar, Ticket } from 'lucide-react';
 import Sidebar from '../../components/Sidebar';
+import { cardStyle, headingStyle, subTextStyle } from '../../styles/pageStyles';
 
 export default function Analytics() {
   const { user } = useAuth();
@@ -45,8 +46,8 @@ export default function Analytics() {
             <BarChart2 style={{ width: 22, height: 22, color: '#fff' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0 }}>Analytics & Revenue</h1>
-            <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>Real-time earnings, 5% platform split, and net settlements</p>
+            <h1 style={headingStyle}>Analytics & Revenue</h1>
+            <p style={subTextStyle}>Real-time earnings, 5% platform split, and net settlements</p>
           </div>
         </div>
       </div>
@@ -54,15 +55,14 @@ export default function Analytics() {
       {/* Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
         {[
-          { label: 'Gross Sales (100%)', value: `₹${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#059669', bg: '#ecfdf5' },
-          { label: 'Net Payout (95%)', value: `₹${netPayout.toLocaleString()}`, icon: TrendingUp, color: '#2563eb', bg: '#eff6ff' },
-          { label: 'Platform Fee (5%)', value: `₹${platformFee.toLocaleString()}`, icon: DollarSign, color: '#d97706', bg: '#fffbeb' },
-          { label: 'Tickets Sold', value: totalSold.toLocaleString(), icon: Ticket, color: '#6366f1', bg: '#eef2ff' },
+          { label: 'Gross Sales (100%)', value: `₹${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#059669', bg: 'rgba(5, 150, 105, 0.12)' },
+          { label: 'Net Payout (95%)', value: `₹${netPayout.toLocaleString()}`, icon: TrendingUp, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)' },
+          { label: 'Platform Fee (5%)', value: `₹${platformFee.toLocaleString()}`, icon: DollarSign, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
+          { label: 'Tickets Sold', value: totalSold.toLocaleString(), icon: Ticket, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
         ].map((s, i) => (
           <div key={i} style={{
-            background: '#fff', borderRadius: 14, padding: '22px 24px',
-            border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 16,
-            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+            ...cardStyle,
+            padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 16,
           }}>
             <div style={{
               width: 48, height: 48, borderRadius: 12, background: s.bg,
@@ -71,8 +71,8 @@ export default function Analytics() {
               <s.icon style={{ width: 22, height: 22, color: s.color }} />
             </div>
             <div>
-              <p style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{s.label}</p>
-              <p style={{ fontSize: 24, fontWeight: 800, color: '#0f172a', margin: 0 }}>{s.value}</p>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>{s.label}</p>
+              <p style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>{s.value}</p>
             </div>
           </div>
         ))}
@@ -80,7 +80,7 @@ export default function Analytics() {
 
       {/* Revenue per Event */}
       <div>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text-main)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Calendar style={{ width: 18, height: 18, color: '#6366f1' }} />
           Revenue per Event
         </h2>
@@ -91,21 +91,17 @@ export default function Analytics() {
             const pct = totalRevenue > 0 ? Math.round((revenue / totalRevenue) * 100) : 0;
             return (
               <div key={event.id} style={{
-                background: '#fff', borderRadius: 14, padding: '18px 22px',
-                border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 20,
-                boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                transition: 'box-shadow 0.2s'
-              }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)'}
-              >
+                ...cardStyle,
+                padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 20,
+                transition: 'transform 0.15s, box-shadow 0.15s',
+              }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--c-text-main)', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {event.title}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{
-                      height: 8, flex: 1, background: '#f1f5f9', borderRadius: 99, overflow: 'hidden'
+                      height: 8, flex: 1, background: 'var(--c-bg)', borderRadius: 99, overflow: 'hidden', border: '1px solid var(--c-border)'
                     }}>
                       <div style={{
                         height: '100%',
@@ -115,12 +111,12 @@ export default function Analytics() {
                         transition: 'width 0.6s ease'
                       }} />
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b', width: 40, textAlign: 'right' }}>{pct}%</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', width: 40, textAlign: 'right' }}>{pct}%</span>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
                   <div style={{ fontSize: 16, fontWeight: 800, color: '#059669' }}>₹{revenue.toLocaleString()}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{sold} sold</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 2 }}>{sold} sold</div>
                 </div>
               </div>
             );

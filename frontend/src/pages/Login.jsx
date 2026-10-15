@@ -18,6 +18,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const redirectTarget = location.state?.from;
+  const registrationSuccess = location.state?.registrationSuccess;
+  const registeredEmail = location.state?.registeredEmail;
+
+  React.useEffect(() => {
+    if (registeredEmail) {
+      setEmail(registeredEmail);
+    }
+  }, [registeredEmail]);
 
   React.useEffect(() => {
     if (user) {
@@ -71,6 +79,9 @@ export default function Login() {
       setPassword('demo1234');
     } else if (role === 'admin') {
       setEmail('admin@eventhub.com');
+      setPassword('demo1234');
+    } else if (role === 'organizer') {
+      setEmail('organizer@example.com');
       setPassword('demo1234');
     } else {
       setEmail('john@example.com');
@@ -155,7 +166,17 @@ export default function Login() {
         <div className="p-8 sm:p-10 flex flex-col justify-center space-y-6 bg-white">
           <div className="text-center space-y-1">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Login to Your Account</h2>
-            {redirectTarget && (
+            {registrationSuccess && (
+              <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium text-left space-y-1">
+                <div className="font-bold flex items-center gap-1.5 text-emerald-900">
+                  <span>🎉</span> Registration successful!
+                </div>
+                <p className="text-[11px] text-emerald-700">
+                  A thank you and welcome email has been sent to {registeredEmail ? <strong className="font-semibold text-emerald-900">{registeredEmail}</strong> : 'your inbox'}. Please sign in below.
+                </p>
+              </div>
+            )}
+            {redirectTarget && !registrationSuccess && (
               <p className="text-xs text-blue-600 font-semibold bg-blue-50 py-1.5 px-3 rounded-lg border border-blue-100">
                 Please log in to access this page
               </p>

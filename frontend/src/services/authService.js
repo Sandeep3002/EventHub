@@ -10,12 +10,12 @@ export const authService = {
     return data;
   },
 
-  async register(fullName, email, password, role = 'attendee', remember = true) {
+  async register(fullName, email, password, role = 'attendee') {
     const data = await request('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ full_name: fullName, email, password, role })
     });
-    setAuth(data.access_token, data.user, remember);
+    // Don't call setAuth() — user must login explicitly after registration
     return data;
   },
 

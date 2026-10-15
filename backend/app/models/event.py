@@ -26,5 +26,7 @@ class EventInDB(BaseModel):
     price: float = 0.0
     tags: List[str] = []
     status: EventStatus = EventStatus.PUBLISHED
+    contact_phone: Optional[str] = None
+    contact_email: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

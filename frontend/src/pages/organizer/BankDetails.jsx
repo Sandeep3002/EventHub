@@ -3,6 +3,7 @@ import Sidebar from '../../components/Sidebar';
 import { useAuth } from '../../context/AuthContext';
 import { bookingService } from '../../services/bookingService';
 import { CreditCard, Building2, Hash, User, Landmark, Save, CheckCircle2, AlertCircle } from 'lucide-react';
+import { cardStyle, inputStyle, labelStyle } from '../../styles/pageStyles';
 
 export default function BankDetails() {
   const { user } = useAuth();
@@ -85,14 +86,15 @@ export default function BankDetails() {
         <div style={{
           background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
           borderRadius: 16, padding: '28px 32px', color: 'white',
+          boxShadow: '0 4px 20px rgba(124, 58, 237, 0.25)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <CreditCard style={{ width: 26, height: 26 }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700 }}>{isEdit ? 'Edit Bank Details' : 'Add Bank Details'}</h1>
+            <CreditCard style={{ width: 26, height: 26, color: '#fff' }} />
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: '#fff', margin: 0 }}>{isEdit ? 'Edit Bank Details' : 'Add Bank Details'}</h1>
           </div>
-          <p style={{ fontSize: 14, opacity: 0.85 }}>
+          <p style={{ fontSize: 14, opacity: 0.9, color: 'rgba(255,255,255,0.9)', margin: 0 }}>
             Configure your bank account for receiving payouts from ticket sales.
-            {isEdit && <span style={{ display: 'block', marginTop: 4, fontSize: 12, opacity: 0.7 }}>Your bank details are already on file. You can update them below.</span>}
+            {isEdit && <span style={{ display: 'block', marginTop: 4, fontSize: 12, opacity: 0.75 }}>Your bank details are already on file. You can update them below.</span>}
           </p>
         </div>
 
@@ -101,9 +103,9 @@ export default function BankDetails() {
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '12px 18px',
             borderRadius: 10, fontSize: 13, fontWeight: 600,
-            background: toast.type === 'success' ? '#ecfdf5' : '#fef2f2',
-            color: toast.type === 'success' ? '#059669' : '#dc2626',
-            border: `1px solid ${toast.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
+            background: toast.type === 'success' ? 'rgba(5, 150, 105, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+            color: toast.type === 'success' ? '#059669' : '#ef4444',
+            border: `1px solid ${toast.type === 'success' ? 'rgba(5, 150, 105, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
           }}>
             {toast.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
             {toast.message}
@@ -112,16 +114,16 @@ export default function BankDetails() {
 
         {/* Form Card */}
         <div style={{
-          background: 'white', borderRadius: 14, border: '1px solid #e2e8f0',
-          padding: '32px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          ...cardStyle,
+          padding: '32px',
         }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '48px 0' }}>
               <div style={{
-                width: 32, height: 32, border: '3px solid #e2e8f0', borderTopColor: '#7c3aed',
+                width: 32, height: 32, border: '3px solid var(--c-border)', borderTopColor: '#7c3aed',
                 borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto',
               }} />
-              <p style={{ color: '#94a3b8', fontSize: 13, marginTop: 12 }}>Loading bank details...</p>
+              <p style={{ color: 'var(--c-text-muted)', fontSize: 13, marginTop: 12 }}>Loading bank details...</p>
             </div>
           ) : (
             <form onSubmit={handleSave}>
@@ -130,13 +132,13 @@ export default function BankDetails() {
                   const Icon = f.icon;
                   return (
                     <div key={f.key}>
-                      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#334155', marginBottom: 6 }}>
+                      <label style={labelStyle}>
                         {f.label} {f.required && <span style={{ color: '#ef4444' }}>*</span>}
                       </label>
                       <div style={{ position: 'relative' }}>
                         <div style={{
                           position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                          color: '#94a3b8', pointerEvents: 'none',
+                          color: 'var(--c-text-muted)', pointerEvents: 'none',
                         }}>
                           <Icon size={16} />
                         </div>
@@ -146,13 +148,11 @@ export default function BankDetails() {
                           onChange={onChange(f.key)}
                           placeholder={f.placeholder}
                           style={{
-                            width: '100%', padding: '10px 12px 10px 38px', borderRadius: 10,
-                            border: '1px solid #e2e8f0', fontSize: 14, color: '#0f172a',
-                            outline: 'none', transition: 'border-color 0.15s',
-                            background: '#fafbfc',
+                            ...inputStyle,
+                            paddingLeft: 38,
                           }}
                           onFocus={e => e.target.style.borderColor = '#7c3aed'}
-                          onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                          onBlur={e => e.target.style.borderColor = 'var(--c-border)'}
                         />
                       </div>
                     </div>
@@ -182,10 +182,10 @@ export default function BankDetails() {
 
         {/* Info Note */}
         <div style={{
-          background: '#f5f3ff', borderRadius: 12, padding: '16px 20px',
-          border: '1px solid #ede9fe', fontSize: 13, color: '#6b21a8', lineHeight: 1.6,
+          background: 'rgba(124, 58, 237, 0.08)', borderRadius: 12, padding: '16px 20px',
+          border: '1px solid rgba(124, 58, 237, 0.25)', fontSize: 13, color: 'var(--c-text-main)', lineHeight: 1.6,
         }}>
-          <strong>How payouts work:</strong> EventHub retains a 5% platform commission from each ticket sale.
+          <strong style={{ color: '#8b5cf6' }}>How payouts work:</strong> EventHub retains a 5% platform commission from each ticket sale.
           The remaining 95% is allocated to the organizer. Ensure your bank details are correct to receive timely payouts.
         </div>
 

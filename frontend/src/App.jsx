@@ -9,7 +9,6 @@ import Loading from './components/Loading';
 
 // Public Pages
 import Home from './pages/Home';
-import Events from './pages/Events';
 
 import About from './pages/About';
 import Contact from './pages/Contact';
@@ -65,17 +64,18 @@ function ProtectedRoute({ children, requiredRole }) {
 function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const isDashboardPage = location.pathname.startsWith('/superadmin') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/customer') || location.pathname.startsWith('/organizer') || location.pathname.startsWith('/settings');
   const isStandalonePage = isLandingPage || location.pathname === '/reset-password' || location.pathname === '/about';
 
   return (
-    <div className="min-h-screen relative flex flex-col bg-[#F8FAFC]">
+    <div className="min-h-screen relative flex flex-col" style={{ backgroundColor: isLandingPage ? '#FFFFFF' : 'var(--c-bg)', color: isLandingPage ? '#0F172A' : 'var(--c-text-main)' }}>
       {!isStandalonePage && <Navbar />}
 
-      <main className={isStandalonePage ? '' : 'flex-1 pb-12'}>
+      <main className={isStandalonePage || isDashboardPage ? 'flex-1' : 'flex-1 pb-12'}>
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
-          <Route path="/events" element={<Events />} />
+          <Route path="/events" element={<Navigate to="/customer/events" replace />} />
           <Route path="/events/:id" element={<Navigate to="/customer/events" replace />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
@@ -124,7 +124,7 @@ function AppLayout() {
         </Routes>
       </main>
 
-      {!isStandalonePage && <Footer />}
+      {!isStandalonePage && !isDashboardPage && <Footer />}
     </div>
   );
 }
