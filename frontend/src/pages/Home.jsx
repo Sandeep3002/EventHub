@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { authService } from '../services/authService';
 import {
-  Mail, Lock, Eye, EyeOff, User, Users, Info, CheckCircle2, ArrowRight, X, Sparkles
+  Mail, Lock, Eye, EyeOff, User, Users, Info, CheckCircle2, ArrowRight, X, Sparkles,
+  HelpCircle, Headphones, Bell, Moon, Sun
 } from 'lucide-react';
 
 export default function Home() {
   const { user, login, register } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('signin');
+  const [showNotifPopup, setShowNotifPopup] = useState(false);
+  const notifRef = useRef(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -31,8 +36,19 @@ export default function Home() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [registeredUser, setRegisteredUser] = useState({ name: '', email: '' });
 
+  // Close notification popup when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifPopup(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   // If already logged in, redirect to dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       const role = user.role;
       if (role === 'superadmin') navigate('/superadmin', { replace: true });
@@ -123,15 +139,72 @@ export default function Home() {
 
       {/* ─── RIGHT PANEL: Auth Form ─── */}
       <div className="landing-right relative">
-        {/* About Us Button */}
-        <button
-          onClick={() => navigate('/about')}
-          className="landing-about-btn"
-          title="Learn more about EventHub"
-        >
-          <Info className="w-4 h-4 text-purple-600" />
-          <span>About Us</span>
-        </button>
+        {/* Top-Right Action Buttons: Help, Contact, Notifications, Theme Mode */}
+        <div className="landing-top-actions">
+          {/* Help Pill Button */}
+          <button
+            onClick={() => navigate('/about')}
+            className="landing-help-btn"
+            title="Help & About EventHub"
+            aria-label="Help"
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span>Help</span>
+          </button>
+
+          {/* Contact Pill Button */}
+          <button
+            onClick={() => navigate('/contact')}
+            className="landing-contact-btn"
+            title="Contact Support"
+            aria-label="Contact"
+          >
+            <Headphones className="w-4 h-4" />
+            <span>Contact</span>
+          </button>
+
+          {/* Notification Bell */}
+          <div className="relative" ref={notifRef}>
+            <button
+              onClick={() => setShowNotifPopup(prev => !prev)}
+              className="landing-icon-btn"
+              title="Notifications"
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5" />
+            </button>
+
+            {showNotifPopup && (
+              <div className="landing-notif-dropdown">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <span className="text-xs font-bold text-slate-800">Notifications</span>
+                  <button
+                    onClick={() => setShowNotifPopup(false)}
+                    className="text-slate-400 hover:text-slate-600 p-0.5 rounded"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="py-2.5 space-y-1">
+                  <p className="text-xs font-semibold text-slate-800">Welcome to EventHub! 🎉</p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Explore live events, register passes instantly, and connect with event organizers.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Dark / Light Mode Moon Button */}
+          <button
+            onClick={toggleTheme}
+            className="landing-icon-btn landing-moon-btn"
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-purple-600" />}
+          </button>
+        </div>
 
         <div className="landing-form-card">
           <h2 className="text-2xl font-bold text-slate-900 text-center">Welcome to EventHub</h2>

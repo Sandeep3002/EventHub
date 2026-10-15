@@ -459,9 +459,6 @@ input, select, textarea {
 }
 
 .landing-about-btn {
-  position: absolute;
-  top: 24px;
-  right: 28px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -475,7 +472,6 @@ input, select, textarea {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   transition: all 0.2s ease;
-  z-index: 10;
 }
 
 .landing-about-btn:hover {
@@ -484,6 +480,102 @@ input, select, textarea {
   background: #FAF5FF;
   box-shadow: 0 4px 12px rgba(124,58,237,0.14);
   transform: translateY(-1px);
+}
+
+/* ─── Landing Top Action Bar (Help, Contact, Bell, Moon) ─── */
+.landing-top-actions {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 25;
+}
+
+.landing-help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #7C3AED;
+  background: #FFFFFF;
+  border: 1.5px solid #8B5CF6;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.08);
+}
+.landing-help-btn:hover {
+  background: #FAF5FF;
+  border-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+.landing-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0F172A;
+  background: #FFFFFF;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.landing-contact-btn:hover {
+  border-color: #94A3B8;
+  background: #F8FAFC;
+  transform: translateY(-1px);
+}
+
+.landing-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.landing-icon-btn:hover {
+  background: #F1F5F9;
+  color: #0F172A;
+  transform: translateY(-1px);
+}
+
+.landing-moon-btn {
+  color: #7C3AED;
+}
+.landing-moon-btn:hover {
+  background: #FAF5FF;
+  color: #6D28D9;
+}
+
+.landing-notif-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 8px;
+  width: 280px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  padding: 14px 16px;
+  z-index: 50;
+  animation: fadeIn 0.15s ease-out;
 }
 
 .landing-form-card {
@@ -639,7 +731,9 @@ input, select, textarea {
   .landing-features { gap: 20px; }
   .landing-right { padding: 24px 20px; flex: none; }
   .landing-form-card { max-width: 100%; }
-  .landing-about-btn { top: 12px; right: 12px; padding: 6px 12px; font-size: 0.75rem; }
+  .landing-top-actions { top: 12px; right: 12px; gap: 6px; }
+  .landing-help-btn, .landing-contact-btn { padding: 5px 12px; font-size: 0.75rem; }
+  .landing-icon-btn { width: 32px; height: 32px; }
 }
 
 /* Card Component */
@@ -1374,11 +1468,39 @@ input, select, textarea {
   color: #475569 !important;
 }
 
-.dark-mode .landing-page .landing-about-btn:hover,
-.dark-mode .landing-about-btn:hover {
-  background-color: #FAF5FF !important;
-  border-color: #C084FC !important;
-  color: #7C3AED !important;
+.dark-mode .landing-help-btn {
+  background: #1E293B !important;
+  color: #C084FC !important;
+  border-color: #A855F7 !important;
+}
+.dark-mode .landing-help-btn:hover {
+  background: #334155 !important;
+}
+.dark-mode .landing-contact-btn {
+  background: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+.dark-mode .landing-contact-btn:hover {
+  background: #334155 !important;
+}
+.dark-mode .landing-icon-btn {
+  color: #94A3B8 !important;
+}
+.dark-mode .landing-icon-btn:hover {
+  background: #334155 !important;
+  color: #FFFFFF !important;
+}
+.dark-mode .landing-moon-btn {
+  color: #F59E0B !important;
+}
+.dark-mode .landing-moon-btn:hover {
+  background: #334155 !important;
+  color: #FBBF24 !important;
+}
+.dark-mode .landing-notif-dropdown {
+  background: #1E293B !important;
+  border-color: #334155 !important;
 }
 
 .dark-mode .landing-page .landing-submit-btn,
