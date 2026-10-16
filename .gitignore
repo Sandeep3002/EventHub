@@ -29,6 +29,9 @@ ENV/
 htmlcov/
 .pytest_cache/
 
+# Wrangler
+.wrangler/
+
 # IDE
 .snowflake/
 .vscode/

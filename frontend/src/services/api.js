@@ -47,7 +47,16 @@ export async function request(endpoint, options = {}, fallback = null) {
       let detail = 'Request failed';
       try {
         const errBody = await response.json();
-        detail = errBody.detail || errBody.message || errBody.error || `Error ${response.status}`;
+        const raw = errBody.detail || errBody.message || errBody.error;
+        if (Array.isArray(raw)) {
+          detail = raw.map(e => e.msg || (typeof e === 'object' ? JSON.stringify(e) : String(e))).join(', ');
+        } else if (raw && typeof raw === 'object') {
+          detail = JSON.stringify(raw);
+        } else if (raw) {
+          detail = String(raw);
+        } else {
+          detail = `Error ${response.status}`;
+        }
       } catch {
         const text = await response.text().catch(() => '');
         if (response.status === 405) {
