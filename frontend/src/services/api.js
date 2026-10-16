@@ -1,4 +1,7 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
+const rawBase = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const API_BASE_URL = rawBase
+  ? (rawBase.endsWith('/api/v1') ? rawBase : `${rawBase}/api/v1`)
+  : '/api/v1';
 
 export function getToken() {
   return localStorage.getItem('eventhub_token') || sessionStorage.getItem('eventhub_token');
@@ -47,7 +50,11 @@ export async function request(endpoint, options = {}, fallback = null) {
         detail = errBody.detail || errBody.message || errBody.error || `Error ${response.status}`;
       } catch {
         const text = await response.text().catch(() => '');
-        detail = text || `Error ${response.status}: ${response.statusText}`;
+        if (response.status === 405) {
+          detail = 'Error 405 (Method Not Allowed): The API request hit the static frontend host instead of the live backend server. Make sure VITE_API_URL is configured.';
+        } else {
+          detail = text || `Error ${response.status}${response.statusText ? ': ' + response.statusText : ''}`;
+        }
       }
       throw new Error(detail);
     }
