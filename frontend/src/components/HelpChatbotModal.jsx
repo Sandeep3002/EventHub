@@ -50,7 +50,7 @@ const KNOWLEDGE_BASE = [
   {
     keywords: ['contact', 'support', 'email', 'phone', 'helpdesk', 'customer care'],
     title: 'Contacting Support',
-    answer: `**Support & Assistance:**\n\n• **Email**: contact.gvmsc@gmail.com / support@eventhub.com\n• **Hotline**: +1 (800) 555-EVENT / +91 98765 43210\n• **Office**: EventHub Tech Hub, HITEC City, Hyderabad\n• **Hours**: Mon - Sat, 9:00 AM - 6:00 PM IST`,
+    answer: `**Support & Assistance:**\n\n• **Email**: contact.gvmsc@gmail.com\n• **Hotline**: +1 (800) 555-EVENT / +91 98765 43210\n• **Office**: EventHub Tech Hub, HITEC City, Hyderabad\n• **Hours**: Mon - Sat, 9:00 AM - 6:00 PM IST`,
     action: { label: 'Open Contact Form', path: '/contact' }
   },
   {

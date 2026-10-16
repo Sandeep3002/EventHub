@@ -74,11 +74,6 @@ export default function Contact() {
                   contact.gvmsc@gmail.com
                 </a>
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">
-                <a href="mailto:support@eventhub.com" className="hover:text-purple-600 transition">
-                  support@eventhub.com
-                </a>
-              </p>
             </div>
           </div>
 
