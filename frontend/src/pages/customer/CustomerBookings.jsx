@@ -142,12 +142,36 @@ export default function CustomerBookings() {
             <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>All your event registrations and tickets</p>
           </div>
 
-          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-            {loading ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading bookings...</div> : bookings.length === 0 ? (
-              <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-                <Ticket style={{ width: 40, height: 40, margin: '0 auto 12px', opacity: 0.5 }} />
-                <p style={{ fontWeight: 600, color: 'var(--c-text-main)' }}>No bookings yet</p>
-                <p style={{ fontSize: 12, marginTop: 4 }}>Browse events and register to see your bookings here.</p>
+          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+            {loading ? (
+              <div style={{ padding: 64, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading bookings...</div>
+            ) : bookings.length === 0 ? (
+              <div style={{
+                padding: '64px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+              }}>
+                <div style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: 'rgba(59, 130, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 16,
+                }}>
+                  <Ticket style={{ width: 28, height: 28, color: '#3b82f6' }} />
+                </div>
+                <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text-main)', margin: '0 0 6px 0' }}>
+                  No bookings yet
+                </p>
+                <p style={{ fontSize: 13, color: 'var(--c-text-muted)', margin: 0, maxWidth: 360, lineHeight: 1.5 }}>
+                  Browse events and register to see your tickets and check-in QR codes here.
+                </p>
               </div>
             ) : (
               <div className="overflow-x-auto">

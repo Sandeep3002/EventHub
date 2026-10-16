@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle2, ArrowLeft } from 'lucide-react';
 
 export default function Contact() {
+  const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState({
     name: '',
@@ -18,8 +20,34 @@ export default function Contact() {
   };
 
   return (
-    <div className="app-container py-12 space-y-12">
+    <div className="app-container py-8 space-y-8" style={{ minHeight: '100vh' }}>
       
+      {/* Back button */}
+      <div>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 16px',
+            borderRadius: 10,
+            background: 'var(--c-surface)',
+            border: '1px solid var(--c-border)',
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--c-text-muted)',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            transition: 'all 0.15s ease',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--c-border-hover)'; e.currentTarget.style.color = 'var(--c-text-main)'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--c-border)'; e.currentTarget.style.color = 'var(--c-text-muted)'; }}
+        >
+          <ArrowLeft size={15} /> Back
+        </button>
+      </div>
+
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
         <span className="status-pill status-published text-xs">Get In Touch</span>
@@ -41,8 +69,16 @@ export default function Contact() {
             </div>
             <div>
               <h4 className="text-sm font-bold text-slate-900">Email Support</h4>
-              <p className="text-xs text-slate-500 mt-0.5">support@eventhub.com</p>
-              <p className="text-xs text-slate-500">info@eventhub.com</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                <a href="mailto:contact.gvmsc@gmail.com" className="hover:text-purple-600 font-medium transition text-purple-700 dark:text-purple-400">
+                  contact.gvmsc@gmail.com
+                </a>
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                <a href="mailto:support@eventhub.com" className="hover:text-purple-600 transition">
+                  support@eventhub.com
+                </a>
+              </p>
             </div>
           </div>
 

@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Search, User, LogOut, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X, Moon, Sun } from 'lucide-react';
+import { Search, User, LogOut, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X, Moon, Sun, HelpCircle, Headphones } from 'lucide-react';
+
 import { notificationService } from '../services/notificationService';
 import { useTheme } from '../context/ThemeContext';
+import HelpChatbotModal from './HelpChatbotModal';
 
 export default function Navbar() {
   const { user, logout, isAdmin, isOrganizer } = useAuth();
@@ -14,6 +16,7 @@ export default function Navbar() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [expandedNotif, setExpandedNotif] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
   const notifRef = useRef(null);
   const userMenuRef = useRef(null);
 
@@ -96,19 +99,45 @@ export default function Navbar() {
         </form>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
+          {/* Help & Contact Pill Buttons - displayed on Superadmin, Admin, and Organizer dashboards */}
+          {isDashboardPage && (
+            <>
+              <button
+                onClick={() => setHelpModalOpen(true)}
+                className="dashboard-help-pill"
+                title="Ask EventHub Assistant"
+                aria-label="Help & FAQ Assistant"
+              >
+                <HelpCircle className="w-4 h-4 text-purple-600" />
+                <span>Help</span>
+              </button>
+
+              <button
+                onClick={() => navigate('/contact')}
+                className="dashboard-contact-pill"
+                title="Contact Support"
+                aria-label="Contact"
+              >
+                <Headphones className="w-4 h-4 text-slate-700" />
+                <span>Contact</span>
+              </button>
+            </>
+          )}
+
           {/* Notification bell on dashboard */}
           {isDashboardPage && (
             <div className="relative" ref={notifRef}>
               <button
-                className="relative p-2 rounded-full hover:bg-slate-100 transition"
+                className="dashboard-icon-btn relative"
                 onClick={() => setNotifOpen(!notifOpen)}
                 aria-label="Notifications"
+                title="Notifications"
               >
                 <Bell className="w-5 h-5 text-slate-600" />
                 {notifications.some(n => !n.read) && (
                   <span style={{
-                    position: 'absolute', top: '6px', right: '6px',
+                    position: 'absolute', top: '7px', right: '7px',
                     width: '8px', height: '8px', borderRadius: '50%',
                     background: '#ef4444', border: '2px solid white',
                   }} />
@@ -191,18 +220,14 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Dark / Light Mode Toggle */}
+          {/* Dark / Light Mode Moon Button */}
           <button
             onClick={toggleTheme}
-            className="theme-toggle-btn"
+            className="dashboard-icon-btn"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-            title={isDark ? 'Light mode' : 'Dark mode'}
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            <span className="theme-toggle-track">
-              <span className="theme-toggle-thumb">
-                {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-              </span>
-            </span>
+            {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-purple-600" />}
           </button>
 
           {/* User Profile Dropdown Pill - only on public pages, sidebar handles dashboard */}
@@ -268,6 +293,12 @@ export default function Navbar() {
         </div>
 
       </div>
+
+      {/* Interactive AI / Help Assistant Chatbot Modal */}
+      <HelpChatbotModal
+        isOpen={helpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
+      />
     </header>
   );
 }

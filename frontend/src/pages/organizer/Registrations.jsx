@@ -4,7 +4,7 @@ import { bookingService } from '../../services/bookingService';
 import { eventService } from '../../services/eventService';
 import { useAuth } from '../../context/AuthContext';
 import Loading from '../../components/Loading';
-import { Users, QrCode, CheckCircle2, Search, Mail, X, Send, Calendar, Clock, Ticket, Trash2, Download, Check } from 'lucide-react';
+import { Users, QrCode, CheckCircle2, Search, Mail, X, Send, Clock, Ticket, Trash2, Download } from 'lucide-react';
 
 export default function Registrations() {
   const { user } = useAuth();
@@ -208,16 +208,16 @@ export default function Registrations() {
     <div className="dashboard-layout">
       <Sidebar role="admin" />
 
-      <main className="dashboard-content space-y-6">
-        <div className="flex items-center justify-between">
+      <main className="dashboard-content" style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--c-text-main)', margin: 0 }}>Registrations</h1>
-            <p style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 4 }}>All attendees who registered for your events</p>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--c-text-main)', margin: 0, letterSpacing: '-0.02em' }}>Registrations</h1>
+            <p style={{ fontSize: 15, color: 'var(--c-text-muted)', marginTop: 6 }}>All attendees who registered for your events</p>
           </div>
           {selectedIds.length > 0 && (
             <button
               onClick={() => { setShowEmailModal(true); setEmailResult(null); setEmailSubject(''); setEmailMessage(''); }}
-              className="btn-primary text-xs py-2.5 px-4 flex items-center gap-1.5"
+              className="btn-primary text-sm py-2.5 px-5 flex items-center gap-2 shadow-md shadow-blue-500/10 font-semibold"
             >
               <Mail className="w-4 h-4" />
               <span>Email {selectedIds.length} Attendee{selectedIds.length > 1 ? 's' : ''}</span>
@@ -226,45 +226,46 @@ export default function Registrations() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {[
-            { label: 'Total', value: stats.total, icon: Users, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.14)' },
-            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle2, color: '#10b981', bg: 'rgba(16, 185, 129, 0.14)' },
-            { label: 'Pending', value: stats.pending, icon: Clock, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.14)' },
-            { label: 'Revenue', value: `$${stats.revenue.toLocaleString()}`, icon: Ticket, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.14)' },
+            { label: 'Total', value: stats.total, icon: Users, color: '#8b5cf6', bg: 'rgba(139, 92, 246, 0.12)' },
+            { label: 'Confirmed', value: stats.confirmed, icon: CheckCircle2, color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+            { label: 'Pending', value: stats.pending, icon: Clock, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
+            { label: 'Revenue', value: `$${stats.revenue.toLocaleString()}`, icon: Ticket, color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.12)' },
           ].map((s, i) => (
             <div key={i} style={{
               background: 'var(--c-surface)',
               border: '1px solid var(--c-border)',
-              borderRadius: 14,
-              padding: '16px 18px',
+              borderRadius: 16,
+              padding: '20px 24px',
               display: 'flex',
               alignItems: 'center',
-              gap: 14,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              gap: 16,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.03)',
             }}>
               <div style={{
-                width: 42, height: 42, borderRadius: 10,
+                width: 50, height: 50, borderRadius: 14,
                 background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
               }}>
-                <s.icon style={{ width: 20, height: 20, color: s.color }} />
+                <s.icon style={{ width: 24, height: 24, color: s.color }} />
               </div>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</div>
-                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--c-text-main)' }}>{s.value}</div>
+                <div style={{ fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>{s.label}</div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--c-text-main)', lineHeight: 1.1 }}>{s.value}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Search */}
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
           <div style={{
-            flex: 1, display: 'flex', alignItems: 'center', gap: 10,
+            flex: 1, display: 'flex', alignItems: 'center', gap: 12,
             background: 'var(--c-surface)', border: '1px solid var(--c-border)',
-            borderRadius: 10, padding: '10px 14px',
+            borderRadius: 12, padding: '12px 18px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
           }}>
-            <Search className="w-4 h-4 text-slate-400" />
+            <Search className="w-5 h-5 text-slate-400" style={{ flexShrink: 0 }} />
             <input
               type="text"
               placeholder="Search by name, email, event, or pass code..."
@@ -272,7 +273,7 @@ export default function Registrations() {
               onChange={e => setSearchTerm(e.target.value)}
               style={{
                 border: 'none', outline: 'none', background: 'transparent',
-                fontSize: 13, color: 'var(--c-text-main)', width: '100%',
+                fontSize: 15, color: 'var(--c-text-main)', width: '100%',
               }}
             />
           </div>
@@ -283,12 +284,13 @@ export default function Registrations() {
               background: 'var(--c-surface)',
               color: 'var(--c-text-main)',
               border: '1px solid var(--c-border)',
-              borderRadius: 10,
-              padding: '10px 16px',
-              fontSize: 13,
+              borderRadius: 12,
+              padding: '12px 20px',
+              fontSize: 15,
               fontWeight: 600,
               cursor: 'pointer',
               outline: 'none',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             }}
           >
             <option value="all">All Status</option>
@@ -301,69 +303,91 @@ export default function Registrations() {
         <div style={{
           background: 'var(--c-surface)',
           border: '1px solid var(--c-border)',
-          borderRadius: 14,
+          borderRadius: 16,
           overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
         }}>
           {filtered.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
-              <Users className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-              <p className="font-semibold">No registrations yet</p>
-              <p className="text-xs mt-1">When attendees register for events, they'll appear here.</p>
+            <div style={{
+              padding: '68px 24px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                borderRadius: 18,
+                background: 'rgba(139, 92, 246, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
+              }}>
+                <Users style={{ width: 32, height: 32, color: '#8b5cf6' }} />
+              </div>
+              <p style={{ fontSize: 18, fontWeight: 700, color: 'var(--c-text-main)', margin: '0 0 8px 0' }}>
+                No registrations yet
+              </p>
+              <p style={{ fontSize: 15, color: 'var(--c-text-muted)', margin: 0, maxWidth: 420, lineHeight: 1.5 }}>
+                When attendees register for events, they'll appear here.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--c-bg)', borderBottom: '1px solid var(--c-border)' }}>
-                    <th className="w-10" style={{ padding: '14px 16px' }}>
+                    <th className="w-10" style={{ padding: '16px 20px' }}>
                       <input type="checkbox" checked={selectedIds.length === filtered.length && filtered.length > 0} onChange={toggleSelectAll} className="rounded" />
                     </th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Attendee</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Phone</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Age</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Event</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Amount</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Pass Code</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Date</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Status</th>
-                    <th style={{ textAlign: 'left', padding: '14px 16px', fontSize: 11, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase' }}>Action</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Attendee</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Phone</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Age</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Event</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Amount</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pass Code</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                    <th style={{ textAlign: 'left', padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--c-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.id} style={{ borderBottom: '1px solid var(--c-border)' }}>
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '16px 20px' }}>
                         <input type="checkbox" checked={selectedIds.includes(r.id)} onChange={() => toggleSelect(r.id)} className="rounded" />
                       </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ fontWeight: 600, color: 'var(--c-text-main)', fontSize: 13 }}>{r.attendee_name || '-'}</div>
-                        <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{r.attendee_email || '-'}</div>
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--c-text-main)', fontSize: 15 }}>{r.attendee_name || '-'}</div>
+                        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', marginTop: 2 }}>{r.attendee_email || '-'}</div>
                       </td>
-                      <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--c-text-muted)' }}>{r.attendee_phone || '-'}</td>
-                      <td style={{ padding: '14px 16px', fontSize: 13, color: 'var(--c-text-muted)' }}>{r.attendee_age || '-'}</td>
-                      <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 600, color: 'var(--c-text-main)' }}>{r.event_title || '-'}</td>
-                      <td style={{ padding: '14px 16px', fontSize: 13, fontWeight: 700, color: '#10b981' }}>${r.total_amount || 0}</td>
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '16px 20px', fontSize: 14, color: 'var(--c-text-muted)' }}>{r.attendee_phone || '-'}</td>
+                      <td style={{ padding: '16px 20px', fontSize: 14, color: 'var(--c-text-muted)' }}>{r.attendee_age || '-'}</td>
+                      <td style={{ padding: '16px 20px', fontSize: 15, fontWeight: 600, color: 'var(--c-text-main)' }}>{r.event_title || '-'}</td>
+                      <td style={{ padding: '16px 20px', fontSize: 15, fontWeight: 700, color: '#10b981' }}>${r.total_amount || 0}</td>
+                      <td style={{ padding: '16px 20px' }}>
                         <button
                           onClick={() => setSelectedPass(r)}
                           style={{
                             display: 'inline-flex', alignItems: 'center', gap: 6,
                             background: 'rgba(124, 58, 237, 0.12)', color: '#8b5cf6',
                             border: '1px solid rgba(124, 58, 237, 0.25)',
-                            padding: '4px 10px', borderRadius: 8, fontSize: 11, fontFamily: 'monospace', fontWeight: 600,
+                            padding: '6px 14px', borderRadius: 8, fontSize: 13, fontFamily: 'monospace', fontWeight: 600,
                             cursor: 'pointer',
                           }}
                           title="Click to view & verify QR Code"
                         >
-                          <QrCode style={{ width: 14, height: 14, color: '#8b5cf6' }} />
+                          <QrCode style={{ width: 15, height: 15, color: '#8b5cf6' }} />
                           <span>{r.qr_code_token || '-'}</span>
                         </button>
                       </td>
-                      <td style={{ padding: '14px 16px', fontSize: 12, color: 'var(--c-text-muted)' }}>{formatDate(r.created_at)}</td>
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '16px 20px', fontSize: 13, color: 'var(--c-text-muted)' }}>{formatDate(r.created_at)}</td>
+                      <td style={{ padding: '16px 20px' }}>
                         <span style={{
-                          display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, textTransform: 'capitalize',
+                          display: 'inline-block', padding: '5px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700, textTransform: 'capitalize',
                           background: r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
                           color: r.status === 'confirmed' ? '#10b981' : '#f59e0b',
                           border: `1px solid ${r.status === 'confirmed' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
@@ -371,17 +395,17 @@ export default function Registrations() {
                           {r.status || 'pending'}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '16px 20px' }}>
                         <button
                           onClick={() => handleDelete(r.id)}
                           title="Delete registration"
                           style={{
-                            width: '32px', height: '32px', borderRadius: '8px',
+                            width: '36px', height: '36px', borderRadius: '8px',
                             border: '1px solid rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.08)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                           }}
                         >
-                          <Trash2 style={{ width: '14px', height: '14px', color: '#ef4444' }} />
+                          <Trash2 style={{ width: '15px', height: '15px', color: '#ef4444' }} />
                         </button>
                       </td>
                     </tr>
@@ -392,10 +416,10 @@ export default function Registrations() {
           )}
           {filtered.length > 0 && (
             <div style={{
-              padding: '12px 20px',
+              padding: '16px 24px',
               borderTop: '1px solid var(--c-border)',
               background: 'var(--c-bg)',
-              fontSize: 12,
+              fontSize: 13,
               color: 'var(--c-text-muted)',
               display: 'flex',
               justifyContent: 'space-between',
@@ -416,8 +440,8 @@ export default function Registrations() {
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="text-[10px] text-purple-300 font-bold uppercase tracking-widest mb-1">Attendee Pass & QR Code</div>
-              <h3 className="text-lg font-bold text-white mb-4">{selectedPass.event_title || 'Event Pass'}</h3>
+              <div className="text-xs text-purple-200 font-bold uppercase tracking-wider mb-1">Attendee Pass & QR Code</div>
+              <h3 className="text-xl font-extrabold text-white mb-4">{selectedPass.event_title || 'Event Pass'}</h3>
 
               <div data-qr-box="true" className="inline-block bg-white p-4 rounded-2xl shadow-xl">
                 <img
@@ -429,29 +453,29 @@ export default function Registrations() {
               </div>
 
               <div className="mt-4 inline-flex items-center gap-1.5 bg-white/10 border border-white/20 px-4 py-2 rounded-xl">
-                <span className="font-mono text-white font-bold text-sm tracking-wider">{selectedPass.qr_code_token || '-'}</span>
+                <span className="font-mono text-white font-bold text-base tracking-wider">{selectedPass.qr_code_token || '-'}</span>
               </div>
             </div>
 
             <div className="px-6 py-5 space-y-3 bg-white">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Attendee</div>
-                  <div className="font-bold text-slate-900 mt-0.5">{selectedPass.attendee_name || '-'}</div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-slate-50 rounded-xl p-3.5">
+                  <div className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Attendee</div>
+                  <div className="font-bold text-slate-900 text-sm mt-0.5">{selectedPass.attendee_name || '-'}</div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Email</div>
-                  <div className="font-bold text-slate-900 mt-0.5 truncate">{selectedPass.attendee_email || '-'}</div>
+                <div className="bg-slate-50 rounded-xl p-3.5">
+                  <div className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Email</div>
+                  <div className="font-bold text-slate-900 text-sm mt-0.5 truncate">{selectedPass.attendee_email || '-'}</div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Amount</div>
-                  <div className="font-bold text-emerald-600 mt-0.5">${selectedPass.total_amount || 0}</div>
+                <div className="bg-slate-50 rounded-xl p-3.5">
+                  <div className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Amount</div>
+                  <div className="font-bold text-emerald-600 text-sm mt-0.5">${selectedPass.total_amount || 0}</div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <div className="text-slate-400 text-[10px] font-semibold uppercase">Status</div>
+                <div className="bg-slate-50 rounded-xl p-3.5">
+                  <div className="text-slate-400 text-xs font-semibold uppercase tracking-wide">Status</div>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="font-bold text-emerald-600 uppercase">{selectedPass.status || 'confirmed'}</span>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    <span className="font-bold text-emerald-600 uppercase text-xs">{selectedPass.status || 'confirmed'}</span>
                   </div>
                 </div>
               </div>

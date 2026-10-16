@@ -17,13 +17,13 @@ export default function About() {
 
         {/* Back button — pure left edge */}
         <div style={{ padding: '24px 24px 0' }}>
-          <button onClick={() => navigate('/')} style={{
+          <button onClick={() => navigate(-1)} style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '8px 16px', borderRadius: 10, background: '#fff',
             border: '1px solid #e2e8f0', fontSize: 13, fontWeight: 600,
             color: '#475569', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,.06)',
           }}>
-            <ArrowLeft size={15} /> Back to Home
+            <ArrowLeft size={15} /> Back
           </button>
         </div>
 

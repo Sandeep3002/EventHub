@@ -65,7 +65,7 @@ function AppLayout() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
   const isDashboardPage = location.pathname.startsWith('/superadmin') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/customer') || location.pathname.startsWith('/organizer') || location.pathname.startsWith('/settings');
-  const isStandalonePage = isLandingPage || location.pathname === '/reset-password' || location.pathname === '/about';
+  const isStandalonePage = isLandingPage || location.pathname === '/reset-password' || location.pathname === '/about' || location.pathname === '/contact';
 
   return (
     <div className="min-h-screen relative flex flex-col" style={{ backgroundColor: isLandingPage ? '#FFFFFF' : 'var(--c-bg)', color: isLandingPage ? '#0F172A' : 'var(--c-text-main)' }}>

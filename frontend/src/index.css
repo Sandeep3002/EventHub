@@ -23,9 +23,22 @@
 /* ─── Global Reset & Typography ────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, figure, blockquote, dl, dd {
   margin: 0;
   padding: 0;
 }
+
+/* ─── Spacing Utility Overrides for reliable layout rhythm ──────────────────── */
+.space-y-1 > * + * { margin-top: 0.25rem !important; }
+.space-y-2 > * + * { margin-top: 0.5rem !important; }
+.space-y-3 > * + * { margin-top: 0.75rem !important; }
+.space-y-4 > * + * { margin-top: 1rem !important; }
+.space-y-5 > * + * { margin-top: 1.25rem !important; }
+.space-y-6 > * + * { margin-top: 1.5rem !important; }
+.space-y-8 > * + * { margin-top: 2rem !important; }
+
 
 html {
   scroll-behavior: smooth;
@@ -577,6 +590,71 @@ input, select, textarea {
   z-index: 50;
   animation: fadeIn 0.15s ease-out;
 }
+
+/* ─── Dashboard Top Action Bar (Help, Contact, Bell, Moon) ─── */
+.dashboard-help-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7C3AED;
+  background: var(--c-surface);
+  border: 1.5px solid #8B5CF6;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(124, 58, 237, 0.08);
+}
+.dashboard-help-pill:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: #7C3AED;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+.dashboard-contact-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text-main);
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-border);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+.dashboard-contact-pill:hover {
+  border-color: var(--c-border-hover);
+  background: var(--c-bg);
+  transform: translateY(-1px);
+}
+
+.dashboard-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dashboard-icon-btn:hover {
+  background: var(--c-bg);
+  color: var(--c-text-main);
+  border-color: var(--c-border-hover);
+  transform: translateY(-1px);
+}
+
 
 .landing-form-card {
   width: 100%;
@@ -1502,6 +1580,35 @@ input, select, textarea {
   background: #1E293B !important;
   border-color: #334155 !important;
 }
+
+.dark-mode .dashboard-help-pill {
+  background: #1E293B !important;
+  color: #C084FC !important;
+  border-color: #A855F7 !important;
+}
+.dark-mode .dashboard-help-pill:hover {
+  background: #2E1065 !important;
+}
+.dark-mode .dashboard-contact-pill {
+  background: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+.dark-mode .dashboard-contact-pill:hover {
+  background: #334155 !important;
+  border-color: #64748B !important;
+}
+.dark-mode .dashboard-icon-btn {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+.dark-mode .dashboard-icon-btn:hover {
+  background: #334155 !important;
+  color: #FFFFFF !important;
+  border-color: #475569 !important;
+}
+
 
 .dark-mode .landing-page .landing-submit-btn,
 .dark-mode .landing-submit-btn {

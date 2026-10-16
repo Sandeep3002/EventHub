@@ -91,10 +91,10 @@ export default function Login() {
 
   return (
     <div className="app-container py-12 flex items-center justify-center min-h-[80vh]">
-      
+
       {/* 2-Column Split Card */}
       <div className="w-full max-w-4xl bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        
+
         {/* Left Hero Panel */}
         <div className="relative bg-slate-900 text-white p-8 sm:p-10 flex flex-col justify-between overflow-hidden">
           {/* Background concert photo with dark overlay */}
@@ -215,7 +215,7 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            
+
             <div className="form-group mb-0">
               <label className="form-label text-xs">Email Address</label>
               <input

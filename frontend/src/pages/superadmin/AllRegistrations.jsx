@@ -170,8 +170,36 @@ export default function AllRegistrations() {
           </div>
 
           <div style={{ ...cardStyle, overflow: 'hidden' }}>
-            {loading ? <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading...</div> : filtered.length === 0 ? (
-              <div style={{ padding: 48, textAlign: 'center', color: 'var(--c-text-muted)' }}>No registrations found.</div>
+            {loading ? (
+              <div style={{ padding: 64, textAlign: 'center', color: 'var(--c-text-muted)' }}>Loading registrations...</div>
+            ) : filtered.length === 0 ? (
+              <div style={{
+                padding: '64px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+              }}>
+                <div style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: 'rgba(139, 92, 246, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 16,
+                }}>
+                  <Users style={{ width: 28, height: 28, color: '#8b5cf6' }} />
+                </div>
+                <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--c-text-main)', margin: '0 0 6px 0' }}>
+                  No registrations found
+                </p>
+                <p style={{ fontSize: 13, color: 'var(--c-text-muted)', margin: 0, maxWidth: 360, lineHeight: 1.5 }}>
+                  {search ? 'Try adjusting your search keywords.' : 'When attendees register for events, they will appear here.'}
+                </p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
