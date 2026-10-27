@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import { bookingService } from '../../services/bookingService';
 import { eventService } from '../../services/eventService';
@@ -214,15 +215,24 @@ export default function Registrations() {
             <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--c-text-main)', margin: 0, letterSpacing: '-0.02em' }}>Registrations</h1>
             <p style={{ fontSize: 15, color: 'var(--c-text-muted)', marginTop: 6 }}>All attendees who registered for your events</p>
           </div>
-          {selectedIds.length > 0 && (
-            <button
-              onClick={() => { setShowEmailModal(true); setEmailResult(null); setEmailSubject(''); setEmailMessage(''); }}
-              className="btn-primary text-sm py-2.5 px-5 flex items-center gap-2 shadow-md shadow-blue-500/10 font-semibold"
+          <div className="flex items-center gap-3">
+            <Link
+              to="/admin/scanner"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl bg-purple-600 hover:bg-purple-700 text-white shadow-md shadow-purple-600/20 transition-all hover:scale-[1.02]"
             >
-              <Mail className="w-4 h-4" />
-              <span>Email {selectedIds.length} Attendee{selectedIds.length > 1 ? 's' : ''}</span>
-            </button>
-          )}
+              <QrCode className="w-4 h-4" />
+              <span>Scan QR Code</span>
+            </Link>
+            {selectedIds.length > 0 && (
+              <button
+                onClick={() => { setShowEmailModal(true); setEmailResult(null); setEmailSubject(''); setEmailMessage(''); }}
+                className="btn-primary text-sm py-2.5 px-5 flex items-center gap-2 shadow-md shadow-blue-500/10 font-semibold"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Email {selectedIds.length} Attendee{selectedIds.length > 1 ? 's' : ''}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Stats */}
