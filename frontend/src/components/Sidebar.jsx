@@ -20,6 +20,7 @@ import {
   FileText,
   Menu,
   X,
+  QrCode,
 } from 'lucide-react';
 
 export default function Sidebar({ role = 'attendee' }) {
@@ -46,6 +47,7 @@ export default function Sidebar({ role = 'attendee' }) {
     { label: 'Bank Details', path: '/superadmin/bank-details', icon: CreditCard },
     { label: 'All Events', path: '/superadmin/events', icon: Calendar },
     { label: 'All Registrations', path: '/superadmin/registrations', icon: FileText },
+    { label: 'QR Scanner', path: '/superadmin/scanner', icon: QrCode },
     { label: 'Manage Users', path: '/superadmin/users', icon: Users },
     { label: 'Settings', path: '/settings', icon: Settings },
   ];
@@ -55,6 +57,7 @@ export default function Sidebar({ role = 'attendee' }) {
     { label: 'Create Event', path: '/admin/create-event', icon: PlusCircle },
     { label: 'Manage Events', path: '/admin/manage-events', icon: Calendar },
     { label: 'Registrations', path: '/admin/registrations', icon: Users },
+    { label: 'QR Scanner', path: '/admin/scanner', icon: QrCode },
     { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
     { label: 'Categories', path: '/admin/categories', icon: Grid },
     { label: 'Venues', path: '/admin/venues', icon: MapPin },

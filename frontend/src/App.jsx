@@ -32,6 +32,7 @@ import ManageCategories from './pages/admin/ManageCategories';
 import ManageVenues from './pages/admin/ManageVenues';
 import ManageUsers from './pages/admin/ManageUsers';
 import BankDetails from './pages/organizer/BankDetails';
+import QRScanner from './pages/organizer/QRScanner';
 
 // Customer Pages
 import CustomerDashboard from './pages/customer/CustomerDashboard';
@@ -89,6 +90,7 @@ function AppLayout() {
           <Route path="/superadmin/activities" element={<Navigate to="/superadmin" replace />} />
           <Route path="/superadmin/events" element={<ProtectedRoute requiredRole="superadmin"><AllEvents /></ProtectedRoute>} />
           <Route path="/superadmin/registrations" element={<ProtectedRoute requiredRole="superadmin"><AllRegistrations /></ProtectedRoute>} />
+          <Route path="/superadmin/scanner" element={<ProtectedRoute requiredRole="superadmin"><QRScanner /></ProtectedRoute>} />
           <Route path="/superadmin/users" element={<ProtectedRoute requiredRole="superadmin"><ManageUsers /></ProtectedRoute>} />
 
           {/* Admin Suite (Event Management) */}
@@ -99,6 +101,7 @@ function AppLayout() {
           <Route path="/admin/analytics" element={<ProtectedRoute requiredRole="admin"><Analytics /></ProtectedRoute>} />
           <Route path="/admin/categories" element={<ProtectedRoute requiredRole="admin"><ManageCategories /></ProtectedRoute>} />
           <Route path="/admin/venues" element={<ProtectedRoute requiredRole="admin"><ManageVenues /></ProtectedRoute>} />
+          <Route path="/admin/scanner" element={<ProtectedRoute requiredRole="admin"><QRScanner /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute requiredRole="admin"><ManageUsers /></ProtectedRoute>} />
           <Route path="/admin/bank-details" element={<ProtectedRoute requiredRole="admin"><BankDetails /></ProtectedRoute>} />
 

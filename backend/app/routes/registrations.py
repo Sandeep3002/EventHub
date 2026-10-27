@@ -76,3 +76,32 @@ class SendEmailRequest(BaseModel):
 @router.post("/send-email")
 async def send_email_to_attendees(req: SendEmailRequest, current_user: dict = Depends(require_admin)):
     return await RegistrationService.send_email_to_attendees(req.registration_ids, req.subject, req.message)
+
+
+class CheckInRequest(BaseModel):
+    qr_token: str
+    action: Optional[str] = "check_in"  # "check_in", "verify", "undo"
+
+
+@router.post("/check-in", include_in_schema=False)
+@router.post("/check-in/")
+async def check_in_attendee(req: CheckInRequest, current_user: dict = Depends(require_admin)):
+    result = await RegistrationService.check_in_pass(
+        qr_token=req.qr_token,
+        action=req.action or "check_in",
+        current_user=current_user
+    )
+    reg = result.get("registration", {})
+    if result.get("valid") and not result.get("already_checked_in") and req.action == "check_in":
+        await ActivityService.log_activity(
+            actor_id=current_user["id"],
+            actor_name=current_user.get("full_name", "Organizer"),
+            actor_role=current_user.get("role", "organizer"),
+            action="attendee_checked_in",
+            target_type="registration",
+            target_name=f"{reg.get('attendee_name', 'Attendee')} ({req.qr_token})",
+            target_id=reg.get("id", ""),
+            details=f"Checked in attendee '{reg.get('attendee_name')}' for event '{reg.get('event_title')}'",
+        )
+    return result
+

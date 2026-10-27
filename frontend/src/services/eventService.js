@@ -75,4 +75,11 @@ export const eventService = {
   async deleteVenue(id) {
     return await request(`/venues/${id}`, { method: 'DELETE' });
   },
+
+  async checkInPass(qrToken, action = 'check_in') {
+    return await request('/registrations/check-in', {
+      method: 'POST',
+      body: JSON.stringify({ qr_token: qrToken, action })
+    });
+  },
 };

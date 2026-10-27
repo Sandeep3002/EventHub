@@ -195,3 +195,87 @@ class RegistrationService:
                 success = await send_custom_email(email, name, subject, message)
                 sent_to.append(email if success else f"{email} (failed)")
         return {"sent_count": len(sent_to), "sent_to": sent_to}
+
+    @staticmethod
+    async def check_in_pass(qr_token: str, action: str = "check_in", current_user: dict = None) -> dict:
+        import re
+        db = get_database()
+        token_clean = (qr_token or "").strip()
+        if not token_clean:
+            raise HTTPException(status_code=400, detail="QR Code or Pass code is required.")
+
+        reg = await db.registrations.find_one({
+            "qr_code_token": {"$regex": f"^{re.escape(token_clean)}$", "$options": "i"}
+        })
+
+        if not reg:
+            raise HTTPException(status_code=404, detail="Invalid Ticket: Pass code not found.")
+
+        reg["id"] = str(reg["_id"])
+        event = await db.events.find_one({"_id": reg.get("event_id")})
+        reg["event_title"] = event.get("title", reg.get("event_title", "Event")) if event else reg.get("event_title", "Event")
+        reg["event_start_time"] = event.get("start_time").strftime("%b %d, %Y • %I:%M %p") if event and event.get("start_time") else None
+        reg["event_venue"] = event.get("venue_id") or event.get("location") or "Main Venue" if event else "Main Venue"
+
+        # If user is organizer, ensure they own this event or are admin/superadmin
+        if current_user and current_user.get("role") == "organizer":
+            if event and event.get("organizer_id") and event.get("organizer_id") != current_user.get("id"):
+                raise HTTPException(status_code=403, detail="Unauthorized: This pass belongs to an event hosted by another organizer.")
+
+        if reg.get("status") == "cancelled":
+            return {
+                "valid": False,
+                "status": "cancelled",
+                "message": "⚠️ Ticket has been CANCELLED! Entry Denied.",
+                "registration": reg
+            }
+
+        already_checked_in = bool(reg.get("checked_in"))
+        checked_in_at = reg.get("checked_in_at")
+
+        if action == "undo":
+            await db.registrations.update_one(
+                {"_id": reg["_id"]},
+                {"$set": {"checked_in": False, "checked_in_at": None}}
+            )
+            reg["checked_in"] = False
+            reg["checked_in_at"] = None
+            return {
+                "valid": True,
+                "already_checked_in": False,
+                "message": "Check-in undone successfully.",
+                "registration": reg
+            }
+
+        if already_checked_in:
+            time_str = checked_in_at.strftime("%I:%M %p, %b %d") if hasattr(checked_in_at, "strftime") else str(checked_in_at)
+            return {
+                "valid": True,
+                "already_checked_in": True,
+                "checked_in_at": time_str,
+                "message": f"⚠️ ALREADY CHECKED IN at {time_str}!",
+                "registration": reg
+            }
+
+        if action == "verify":
+            return {
+                "valid": True,
+                "already_checked_in": False,
+                "message": "✅ Ticket is Valid & Confirmed.",
+                "registration": reg
+            }
+
+        now = datetime.utcnow()
+        await db.registrations.update_one(
+            {"_id": reg["_id"]},
+            {"$set": {"checked_in": True, "checked_in_at": now}}
+        )
+        reg["checked_in"] = True
+        reg["checked_in_at"] = now.strftime("%I:%M %p, %b %d")
+        return {
+            "valid": True,
+            "already_checked_in": False,
+            "message": "✅ VERIFIED & CHECKED IN! Welcome!",
+            "registration": reg
+        }
+
