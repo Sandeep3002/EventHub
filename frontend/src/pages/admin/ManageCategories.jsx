@@ -16,7 +16,10 @@ export default function ManageCategories() {
   const [editSlug, setEditSlug] = useState('');
 
   useEffect(() => {
-    eventService.getCategories().then(cats => { setCategories(cats); setLoading(false); });
+    eventService.getCategories()
+      .then(cats => { setCategories(Array.isArray(cats) ? cats : []); })
+      .catch(err => { console.error('Failed to load categories:', err); setCategories([]); })
+      .finally(() => { setLoading(false); });
   }, []);
 
   const handleAdd = async (e) => {

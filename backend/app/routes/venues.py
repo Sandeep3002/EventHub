@@ -8,6 +8,7 @@ from app.routes.auth import get_current_user, require_admin
 
 router = APIRouter()
 
+@router.post("", response_model=VenueResponse, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 @router.post("/", response_model=VenueResponse, status_code=status.HTTP_201_CREATED)
 async def create_venue(venue_in: VenueCreate, current_user: dict = Depends(require_admin)):
     db = get_database()
@@ -18,6 +19,7 @@ async def create_venue(venue_in: VenueCreate, current_user: dict = Depends(requi
     venue_dict["id"] = venue_dict["_id"]
     return venue_dict
 
+@router.get("", response_model=List[VenueResponse], include_in_schema=False)
 @router.get("/", response_model=List[VenueResponse])
 async def list_venues():
     db = get_database()

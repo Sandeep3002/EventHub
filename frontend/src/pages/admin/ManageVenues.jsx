@@ -14,7 +14,10 @@ export default function ManageVenues() {
   const [editForm, setEditForm] = useState({});
 
   useEffect(() => {
-    eventService.getVenues().then(vens => { setVenues(vens); setLoading(false); });
+    eventService.getVenues()
+      .then(vens => { setVenues(Array.isArray(vens) ? vens : []); })
+      .catch(err => { console.error('Failed to load venues:', err); setVenues([]); })
+      .finally(() => { setLoading(false); });
   }, []);
 
   const handleAdd = async (e) => {

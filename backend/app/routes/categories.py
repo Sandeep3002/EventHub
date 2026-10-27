@@ -8,6 +8,7 @@ from app.routes.auth import get_current_user, require_admin
 
 router = APIRouter()
 
+@router.post("", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 @router.post("/", response_model=CategoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_category(cat_in: CategoryCreate, current_user: dict = Depends(require_admin)):
     db = get_database()
@@ -18,6 +19,7 @@ async def create_category(cat_in: CategoryCreate, current_user: dict = Depends(r
     cat_dict["id"] = cat_dict["_id"]
     return cat_dict
 
+@router.get("", response_model=List[CategoryResponse], include_in_schema=False)
 @router.get("/", response_model=List[CategoryResponse])
 async def list_categories():
     db = get_database()
