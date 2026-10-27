@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { request } from '../../services/api';
 import { eventService } from '../../services/eventService';
 import {
-  Calendar, Users, Wallet, TrendingUp, Plus, Edit3, Eye, Trash2,
+  Calendar, Users, Wallet, TrendingUp, Plus, Edit3, Eye, Trash2, QrCode, ScanLine, ArrowRight,
 } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -128,6 +128,60 @@ export default function OrganizerDashboard() {
             </div>
           ))}
         </div>
+
+        {/* QR Scanner Quick-Action Banner */}
+        <Link
+          to="/admin/scanner"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '20px',
+            background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 45%, #4f46e5 100%)',
+            borderRadius: '16px',
+            padding: '22px 28px',
+            textDecoration: 'none',
+            boxShadow: '0 4px 24px rgba(124, 58, 237, 0.30)',
+            transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(124, 58, 237, 0.40)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(124, 58, 237, 0.30)'; }}
+        >
+          {/* Decorative circles */}
+          <div style={{ position: 'absolute', top: '-20px', right: '120px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', bottom: '-30px', right: '60px', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '18px', zIndex: 1 }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '14px',
+              background: 'rgba(255,255,255,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, backdropFilter: 'blur(4px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}>
+              <QrCode style={{ width: '26px', height: '26px', color: '#ffffff' }} />
+            </div>
+            <div>
+              <p style={{ fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                Attendee Check-In
+              </p>
+              <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#ffffff', margin: 0, letterSpacing: '-0.01em' }}>
+                Open QR Scanner
+              </h3>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.72)', margin: '3px 0 0 0' }}>
+                Scan attendee tickets &amp; verify entry in real time
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1, flexShrink: 0 }}>
+            <ScanLine style={{ width: '20px', height: '20px', color: 'rgba(255,255,255,0.8)' }} />
+            <span style={{ fontSize: '14px', fontWeight: 700, color: '#ffffff', whiteSpace: 'nowrap' }}>Start Scanning</span>
+            <ArrowRight style={{ width: '18px', height: '18px', color: 'rgba(255,255,255,0.8)' }} />
+          </div>
+        </Link>
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
