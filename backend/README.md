@@ -1,3 +1,12 @@
+---
+title: EventHub Backend API
+emoji: 🎟️
+colorFrom: purple
+colorTo: indigo
+sdk: docker
+app_port: 7860
+---
+
 # EventHub Backend API
 
 FastAPI asynchronous backend for EventHub, an end-to-end Event Management and Ticket Reservation System powered by MongoDB.
