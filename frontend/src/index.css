@@ -987,6 +987,37 @@ input, select, textarea {
   }
 }
 
+/* Compact top bar on phones: icon-only Help/Contact, no overflow */
+@media (max-width: 640px) {
+  .top-navbar-inner {
+    gap: 8px;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  .top-navbar-inner .brand-logo span {
+    font-size: 18px;
+  }
+
+  .dashboard-help-pill,
+  .dashboard-contact-pill {
+    padding: 0 !important;
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+  }
+
+  .dashboard-help-pill span,
+  .dashboard-contact-pill span {
+    display: none;
+  }
+
+  .top-navbar-inner .dashboard-icon-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
 /* KPI Stat Cards */
 .stat-card {
   background-color: #FFFFFF;
