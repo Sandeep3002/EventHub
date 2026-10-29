@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Search, User, LogOut, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, CalendarCheck, Calendar, CheckCircle, Info, X, Moon, Sun, HelpCircle, Headphones } from 'lucide-react';
+import { Search, User, LogOut, ShieldCheck, Ticket, ChevronDown, PlusCircle, Bell, Calendar, CheckCircle, Info, X, Moon, Sun, HelpCircle, Headphones } from 'lucide-react';
 
 import { notificationService } from '../services/notificationService';
 import { useTheme } from '../context/ThemeContext';
@@ -64,14 +64,7 @@ export default function Navbar() {
         {/* Brand Logo */}
         <Link to="/" className="brand-logo">
           <div className="brand-icon-new brand-icon-img">
-            <img src="/logo.png" alt="EventHub" onError={e => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement.classList.remove('brand-icon-img'); e.currentTarget.nextSibling.style.display = 'block'; }} />
-            <svg style={{ display: 'none' }} className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-              <polygon points="12,12.5 13.1,14.8 15.6,15.1 13.8,16.8 14.2,19.3 12,18.1 9.8,19.3 10.2,16.8 8.4,15.1 10.9,14.8" fill="currentColor" stroke="none" />
-            </svg>
+            <img src="/logo.svg" alt="EventHub" />
           </div>
           <span>EventHub</span>
         </Link>
