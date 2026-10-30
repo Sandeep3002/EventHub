@@ -2,18 +2,31 @@ import re
 from uuid import uuid4
 from datetime import datetime
 from fastapi import HTTPException, status
+from pymongo.errors import AutoReconnect, NetworkTimeout, ServerSelectionTimeoutError, DuplicateKeyError
 from app.database import get_database
 from app.models.user import UserInDB, UserRole
 from app.schemas.user import UserCreate, UserLogin
 from app.utils.security import get_password_hash, verify_password, create_access_token
 from app.utils.email import send_welcome_email
 
+_TRANSIENT = (AutoReconnect, NetworkTimeout, ServerSelectionTimeoutError)
+
+
+async def _find_by_email(db, clean_email: str):
+    query = {"email": {"$regex": f"^{re.escape(clean_email)}$", "$options": "i"}}
+    try:
+        return await db.users.find_one(query)
+    except _TRANSIENT:
+        # One retry on a dropped connection (common with serverless + Atlas).
+        return await db.users.find_one(query)
+
+
 class AuthService:
     @staticmethod
     async def register_user(user_in: UserCreate) -> dict:
         db = get_database()
         clean_email = user_in.email.strip().lower()
-        existing = await db.users.find_one({"email": {"$regex": f"^{re.escape(clean_email)}$", "$options": "i"}})
+        existing = await _find_by_email(db, clean_email)
         if existing:
             # A retry after a lost response: same email + same password means the
             # account was already created for this person, so treat it as success.
@@ -40,7 +53,13 @@ class AuthService:
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
-        await db.users.insert_one(user_dict)
+        try:
+            await db.users.insert_one(user_dict)
+        except (DuplicateKeyError, *_TRANSIENT):
+            # The write may have landed even though the acknowledgement was lost.
+            saved = await _find_by_email(db, clean_email)
+            if not saved or saved["_id"] != user_dict["_id"]:
+                raise
         token_data = {"sub": user_dict["_id"], "role": user_dict["role"]}
         access_token = create_access_token(token_data)
         # Welcome email is sent as a background task by the route.
