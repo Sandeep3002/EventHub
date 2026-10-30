@@ -2,7 +2,7 @@ import re
 from uuid import uuid4
 from datetime import datetime
 from fastapi import HTTPException, status
-from pymongo.errors import AutoReconnect, NetworkTimeout, ServerSelectionTimeoutError, DuplicateKeyError
+from pymongo.errors import AutoReconnect, NetworkTimeout, ServerSelectionTimeoutError, PyMongoError
 from app.database import get_database
 from app.models.user import UserInDB, UserRole
 from app.schemas.user import UserCreate, UserLogin
@@ -55,8 +55,8 @@ class AuthService:
         }
         try:
             await db.users.insert_one(user_dict)
-        except (DuplicateKeyError, *_TRANSIENT):
-            # The write may have landed even though the acknowledgement was lost.
+        except PyMongoError:
+            # The write may have landed even though the acknowledgement failed.
             saved = await _find_by_email(db, clean_email)
             if not saved or saved["_id"] != user_dict["_id"]:
                 raise

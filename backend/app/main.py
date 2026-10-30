@@ -58,7 +58,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     if isinstance(exc, PyMongoError):
         return JSONResponse(
             status_code=503,
-            content={"detail": "Database is temporarily unavailable. Please try again shortly."},
+            content={"detail": f"Database is temporarily unavailable. Please try again shortly. ({type(exc).__name__})"},
         )
     return JSONResponse(
         status_code=500,
