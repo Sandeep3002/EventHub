@@ -1,5 +1,8 @@
 import asyncio
-from fastapi import FastAPI
+import logging
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from pymongo.errors import PyMongoError
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.settings import settings
 from app.database import connect_to_mongo, close_mongo_connection
@@ -48,6 +51,19 @@ async def shutdown_db_client():
     if _reminder_task:
         _reminder_task.cancel()
     await close_mongo_connection()
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logging.exception(f"Unhandled error on {request.method} {request.url.path}")
+    if isinstance(exc, PyMongoError):
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Database is temporarily unavailable. Please try again shortly."},
+        )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Something went wrong on our side. Please try again."},
+    )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 

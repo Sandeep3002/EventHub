@@ -33,17 +33,8 @@ class AuthService:
         await db.users.insert_one(user_dict)
         token_data = {"sub": user_dict["_id"], "role": user_dict["role"]}
         access_token = create_access_token(token_data)
+        # Welcome email is sent as a background task by the route.
 
-        # Send welcome/thank-you email to the new user
-        try:
-            await send_welcome_email(
-                email_to=clean_email,
-                user_name=user_in.full_name,
-                role=user_dict["role"],
-            )
-        except Exception:
-            pass  # Don't block registration if email fails
-        
         user_dict["id"] = user_dict["_id"]
         return {
             "access_token": access_token,

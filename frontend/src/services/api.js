@@ -45,8 +45,9 @@ export async function request(endpoint, options = {}, fallback = null) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
     if (!response.ok) {
       let detail = 'Request failed';
+      const bodyText = await response.text().catch(() => '');
       try {
-        const errBody = await response.json();
+        const errBody = JSON.parse(bodyText);
         const raw = errBody.detail || errBody.message || errBody.error;
         if (Array.isArray(raw)) {
           detail = raw.map(e => e.msg || (typeof e === 'object' ? JSON.stringify(e) : String(e))).join(', ');
@@ -58,7 +59,7 @@ export async function request(endpoint, options = {}, fallback = null) {
           detail = `Error ${response.status}`;
         }
       } catch {
-        const text = await response.text().catch(() => '');
+        const text = bodyText.slice(0, 300);
         if (response.status === 405) {
           detail = 'Error 405 (Method Not Allowed): The API request hit the static frontend host instead of the live backend server. Make sure VITE_API_URL is configured.';
         } else {
