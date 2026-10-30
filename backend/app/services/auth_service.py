@@ -15,9 +15,19 @@ class AuthService:
         clean_email = user_in.email.strip().lower()
         existing = await db.users.find_one({"email": {"$regex": f"^{re.escape(clean_email)}$", "$options": "i"}})
         if existing:
+            # A retry after a lost response: same email + same password means the
+            # account was already created for this person, so treat it as success.
+            if verify_password(user_in.password, existing.get("hashed_password", "")):
+                token_data = {"sub": existing["_id"], "role": existing["role"]}
+                existing["id"] = existing["_id"]
+                return {
+                    "access_token": create_access_token(token_data),
+                    "token_type": "bearer",
+                    "user": existing,
+                }
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User with this email already exists."
+                detail="This email is already registered. Please sign in instead."
             )
         
         user_dict = {
